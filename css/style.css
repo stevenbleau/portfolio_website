@@ -1,0 +1,1156 @@
+/* Steven Bleau — Design
+   Single stylesheet. Tokens in :root. 8px spacing scale. Titillium Web.
+   Visual language matched to stevenbleau.design: monochrome black-on-white,
+   square corners, gold (#f2a902) only on black surfaces (AA on black, not on white).
+   Dark mode via prefers-color-scheme. Breakpoints only where content breaks. */
+
+/* ---- Tokens ---- */
+:root {
+  --bg: #ffffff;
+  --bg-raised: #ffffff;
+  --fg: #1a1b1f;
+  --muted: #55555c;
+  --line: #e4e4e6;
+  --block: #000000;      /* solid black panels (typed lines, buttons) */
+  --block-fg: #ffffff;
+  --gold: #f2a902;       /* only on --block or dark bg — fails AA on white */
+  --accent: #1a1b1f;     /* links match text, underlined (live-site behavior) */
+
+  /* 8px spacing scale */
+  --s1: 0.5rem;
+  --s2: 1rem;
+  --s3: 1.5rem;
+  --s4: 2rem;
+  --s6: 3rem;
+  --s8: 4rem;
+  --s12: 6rem;
+
+  /* Fluid type scale */
+  --fs--1: clamp(0.84rem, 0.8rem + 0.15vw, 0.95rem);
+  /* Small uppercase labels (nav, eyebrows, CTAs). 12px at the reference's
+     ~1500px design width, scaling up so it stays legible on a large display. */
+  --fs-label: clamp(0.75rem, 0.8vw, 1rem);
+  --fs-0:  clamp(1rem, 0.95rem + 0.25vw, 1.1875rem);
+  --fs-1:  clamp(1.2rem, 1.1rem + 0.4vw, 1.4rem);
+  --fs-2:  clamp(1.45rem, 1.25rem + 0.9vw, 2rem);
+  --fs-3:  clamp(1.8rem, 1.4rem + 1.8vw, 2.75rem);
+  --fs-display: clamp(2.6rem, 1.9rem + 3.4vw, 4.25rem);
+
+  --font-sans: "Titillium Web", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius: 0;
+  --wrap: 96rem; /* cards land ~744px, close to their 720px source width */
+  /* 5rem = the 80px the reference site pads its header from the viewport edge */
+  --gutter: clamp(1.25rem, 4vw, 5rem);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121114;
+    --bg-raised: #1a191e;
+    --fg: #eceae6;
+    --muted: #a3a0ab;
+    --line: #2c2a32;
+    --accent: #eceae6;
+  }
+}
+
+/* ---- Base ---- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+html.js { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-0);
+  line-height: 1.6;
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 600;
+  line-height: 1.15;
+  text-wrap: balance;
+  margin-block: 0 var(--s2);
+}
+
+h1 { font-size: var(--fs-display); }
+h2 { font-size: var(--fs-3); }
+h3 { font-size: var(--fs-2); }
+
+p {
+  margin-block: 0 var(--s2);
+  text-wrap: pretty;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover { text-decoration-thickness: 2px; }
+
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+}
+
+::selection { background: var(--gold); color: #000; }
+
+ul[class], ol[class] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---- Utilities ---- */
+/* One centred column shared by header, content and footer, so everything sits
+   on the same two alignment lines and leftover space is split evenly. Capped
+   rather than full-bleed: on a very wide display an uncapped grid stretches the
+   cards past their source image width and the prose past a readable measure.
+   Only .hero-collage deliberately bleeds past this. */
+.wrap {
+  max-width: calc(var(--wrap) + var(--gutter) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Header and footer bars span the full viewport, one --gutter from each edge.
+   The nav sits hard right; the brand lockup now floats bottom-right as a
+   fixed widget. They deliberately do NOT share the content column's alignment
+   line; the bars frame the page, the column holds the reading content. */
+.wrap--bleed { max-width: none; }
+
+.measure { max-width: 68ch; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.eyebrow {
+  font-size: var(--fs--1);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-block: 0 var(--s2);
+}
+
+.lede {
+  font-size: var(--fs-1);
+  color: var(--muted);
+  max-width: 58ch;
+}
+
+.meta {
+  font-size: var(--fs--1);
+  color: var(--muted);
+}
+
+.skip-link {
+  position: absolute;
+  inset-inline-start: var(--s2);
+  inset-block-start: -100%;
+  background: var(--block);
+  color: var(--block-fg);
+  padding: var(--s1) var(--s2);
+  z-index: 10;
+}
+
+.skip-link:focus { inset-block-start: var(--s2); }
+
+/* ---- Header ---- */
+/* The landing page has no header bar: navigation is the right-edge dot menu
+   and the floating brand widget. Archived case-study pages still render the
+   classic header (wordmark left, nav right); their styles live below. */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s3);
+  padding-block: var(--s4);
+}
+
+/* Legacy header/footer lockup — used by the archived case pages. */
+.wordmark {
+  font-size: var(--fs-0);
+  font-weight: 600; /* Titillium Web has no 500; 600 is its medium/semibold step */
+  color: var(--fg);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+span.wordmark { text-decoration: none; }
+
+a.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  text-decoration: none;
+}
+
+.wordmark-mark {
+  width: clamp(2.25rem, 3.25vw, 4rem); /* ~56px at 1728 */
+  height: auto;
+  flex-shrink: 0;
+}
+
+a.wordmark span {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a.wordmark:hover span { text-decoration-thickness: 2px; }
+
+/* ---- Floating brand widget (bottom right, always visible) ---- */
+/* Logo + "Steven Bleau . Design", locked to a fixed spot at the viewport's
+   bottom-right corner. The gold mark floats free; the black box with white
+   text belongs to the wordmark only, in the same language as the typed hero
+   lines. Past the hero the wordmark condenses away (js/main.js toggles
+   .is-condensed on scroll) and the mark alone keeps floating there; hovering
+   or focusing the condensed mark expands the wordmark back out; clicking
+   jumps home to the work gallery. */
+.brand-float {
+  --brand-logo-w: clamp(2.4rem, 3vw, 3rem);
+  position: fixed;
+  /* Shift the widget toward the edge so the logo's CENTER sits on the same
+     line as the 14px dots' center (inset-end + half the logo width = gutter
+     + half a dot). The expanded wordmark box simply extends leftward. */
+  inset-inline-end: calc(var(--gutter) - var(--brand-logo-w) / 2 + 7px);
+  inset-block-end: var(--gutter);
+  z-index: 7;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.brand-float-mark {
+  width: var(--brand-logo-w);
+  height: auto;
+  flex-shrink: 0;
+  /* The mark sits over arbitrary page content (collage tiles, photos).
+     A tight ring in the page bg color keeps it readable on any backdrop. */
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+.brand-float-text {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 22em;
+  opacity: 1;
+  margin-inline-start: 0.6em;
+  background: var(--block);
+  color: var(--block-fg);
+  font-size: var(--fs-0);
+  font-weight: 600; /* Titillium Web has no 500; 600 is its medium/semibold step */
+  padding: 0.2em 0.6em;
+  text-decoration: underline;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.08em;
+  transition: max-width 0.35s ease, opacity 0.25s ease, margin-inline-start 0.35s ease, padding 0.35s ease;
+}
+
+/* Condensed: the wordmark and its box slide out, leaving only the mark. */
+.brand-float.is-condensed .brand-float-text {
+  max-width: 0;
+  opacity: 0;
+  margin-inline-start: 0;
+  padding-inline: 0;
+}
+
+/* Hovering the floating mark expands the wordmark back out (same gold-on-black
+   hover as the typed hero links). */
+.brand-float:hover .brand-float-text,
+.brand-float:focus-visible .brand-float-text {
+  max-width: 22em;
+  opacity: 1;
+  margin-inline-start: 0.6em;
+  padding-inline: 0.6em;
+  color: var(--gold);
+}
+
+/* Over the hero collage the widget sits on top of the browsing dots. */
+@media (max-width: 52rem) {
+  .brand-float { --brand-logo-w: 2.25rem; }
+}
+
+.site-nav ul {
+  display: flex;
+  gap: var(--s3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Near-black at weight 500, matching the reference — uppercase at this size is
+   hard to read in the muted grey. Hover underlines rather than changing weight,
+   which would shift the layout. */
+.site-nav a {
+  font-size: var(--fs-label);
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.site-nav a::before { content: "."; }
+
+.site-nav a[aria-current="page"] { font-weight: 600; }
+
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+/* Five nav items need a tighter rhythm on small screens. */
+@media (max-width: 52rem) {
+  .site-nav ul { gap: var(--s2); }
+}
+
+/* ---- Sections ---- */
+section { padding-block: var(--s6); }
+
+/* Full-screen snap sections: each section fills the viewport and the page
+   snaps section-to-section (scroll-snap-stop: always gives the threshold —
+   a small scroll pops to the next section instead of drifting). The header
+   overlays the hero and scrolls away with it, like the reference site. */
+body > .wrap--bleed:first-of-type .site-header {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 0;
+  z-index: 5;
+  padding-inline: var(--gutter);
+}
+
+.hero-collage,
+main .wrap > section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.site-footer { scroll-snap-align: end; }
+
+main .wrap > section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  justify-content: safe center;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ---- Horizontal snap rows ---- */
+/* Card lists inside full-screen sections scroll sideways with a snap threshold
+   and peek: neighbors are scaled/ducked back, the centered card pops toward
+   the viewer (js/main.js toggles .is-focus via IntersectionObserver; with no
+   JS everything renders at full size in a plain grid/stack). */
+.work-list.work-list--h,
+.edu.edu--h {
+  display: flex;
+  grid-template-columns: none;
+  gap: var(--s6);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-inline: calc((100% - var(--item-w)) / 2);
+  padding-block: var(--s2);
+}
+
+.work-list--h { --item-w: min(64rem, 86vw); }
+.edu--h { --item-w: min(26rem, 78vw); }
+
+/* Slot pager (js/main.js builds one slot per card): click a slot to flip the
+   strip to that card; the centered card's slot stays filled. offsetLeft is
+   measured against the list, so it becomes the positioning ancestor. */
+.work-list--h,
+.edu--h { position: relative; }
+
+.hsnap-slots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-block-start: var(--s2);
+}
+
+.hsnap-slot {
+  width: 40px;
+  height: 6px;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.hsnap-slot.is-active {
+  background: var(--block);
+  border-color: var(--block);
+}
+
+.hsnap-slot:hover { border-color: var(--fg); }
+
+.work-list--h::-webkit-scrollbar,
+.edu--h::-webkit-scrollbar { display: none; }
+
+.work-list--h > li,
+.edu--h > li {
+  flex: 0 0 var(--item-w);
+  scroll-snap-align: center;
+  transform: scale(0.88);
+  opacity: 0.45;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.work-list--h > li.is-focus,
+.edu--h > li.is-focus {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Inside the snap row, work cards are always plate-beside-text at roomy widths. */
+@media (min-width: 56rem) {
+  .work-list--h .work-entry { grid-template-columns: 1fr 1fr; }
+}
+
+/* Focus ring on the keyboard-scrollable strip. */
+.work-list--h:focus-visible,
+.edu--h:focus-visible { outline: 2px solid var(--fg); outline-offset: 4px; }
+
+/* ---- Hero: typed lines over full-bleed collage ---- */
+/* Proportions taken from the reference site, which is laid out for a ~1500px
+   viewport: 300x200 tiles, 5px gaps, 3 rows, 56px type, type 98px below the
+   grid. Those are fixed pixels there, so the hero shrinks away on a large
+   display. Here --tile-w drives all of them instead, so the composition is
+   identical to the reference at 1500px and holds its proportions at any width.
+   Every ratio below is literally <reference px> / 300. */
+.hero-collage {
+  --tile-w: clamp(260px, 20vw, 480px);
+  --tile-gap: 5px;
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  padding-block: 0;
+}
+
+/* Column-flow grid in a hidden-scrollbar strip: scrolls horizontally by
+   touch/trackpad natively; main.js adds slow auto-scroll + mouse drag.
+   The three rows share the hero's viewport height evenly, so the collage
+   always fills the screen; images cover-crop into the resulting tiles. */
+.collage {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(3, 1fr);
+  grid-auto-columns: var(--tile-w);
+  gap: var(--tile-gap);
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden; /* tiles pop on hover; keep the strip from gaining a vertical scroll range */
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.collage::-webkit-scrollbar { display: none; }
+
+html.js .collage { cursor: grab; }
+html.js .collage.dragging { cursor: grabbing; }
+
+/* Mouse-accessible scrollbar for the continuous collage strip (js/main.js
+   builds the thumb and keeps it synced with the auto-scroll + drag state). */
+.hsb {
+  position: absolute;
+  inset-inline: var(--gutter);
+  inset-block-end: var(--s1);
+  height: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  z-index: 4;
+  cursor: pointer;
+}
+
+.hsb-thumb {
+  height: 100%;
+  min-width: 24px;
+  background: var(--block-fg);
+  cursor: grab;
+}
+
+.collage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Gallery tiles: hover expands the shot a bit out of its cell; a tap/click
+   opens the post modal (js/main.js). Drag-scroll still wins over a click. */
+html.js .collage img { cursor: pointer; }
+
+html.js .collage img:hover {
+  position: relative;
+  z-index: 2;
+  transform: scale(1.045);
+}
+
+/* ---- Gallery post modal (Instagram-style) ---- */
+.post-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  background: rgba(0, 0, 0, 0.72);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.post-modal.is-open { opacity: 1; }
+
+.post-modal[hidden] { display: none; }
+
+html.modal-open { overflow: hidden; }
+
+.post-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(15rem, 1fr);
+  width: min(64rem, 94vw);
+  max-height: 90vh;
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  transform: scale(0.965) translateY(14px);
+  transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.post-modal.is-open .post-card { transform: none; }
+
+.post-media {
+  display: grid;
+  place-items: center;
+  background: #0b0b0d;
+  min-width: 0;
+}
+
+.post-media img {
+  width: 100%;
+  height: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+}
+
+.post-caption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s3);
+  overflow: auto;
+}
+
+.post-handle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  font-size: var(--fs--1);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+  padding-block-end: var(--s1);
+}
+
+.post-close {
+  font: inherit;
+  font-size: var(--fs-1);
+  line-height: 1;
+  cursor: pointer;
+  background: none;
+  color: var(--fg);
+  border: 1px solid var(--fg);
+  border-radius: var(--radius);
+  padding: 0.1em 0.55em 0.18em;
+}
+
+.post-close:hover,
+.post-close:focus-visible {
+  background: var(--block);
+  border-color: var(--block);
+  color: var(--gold);
+}
+
+.post-title { font-size: var(--fs-1); font-weight: 600; margin: 0; }
+
+.post-text { color: var(--muted); margin: 0; }
+
+.post-index {
+  margin-block-start: auto;
+  padding-block-start: var(--s2);
+  font-size: var(--fs--1);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@media (max-width: 40rem) {
+  .post-card { grid-template-columns: 1fr; }
+  .post-media img { max-height: 46vh; }
+}
+
+/* Reference geometry: block left edge at 35vw (tracks the viewport at every
+   width — the old 28rem cap is what made it drift left on large displays),
+   98px down from the top of the grid (98/300 of the tile width). */
+.hero-type {
+  position: absolute;
+  /* Above the collage tiles' hover pop (z-index: 2 on .collage img): the
+     typed lines always paint over expanded shots. Dots (6), brand widget
+     (7), and the post modal (20) sit above it in turn. */
+  z-index: 3;
+  inset-block-start: calc(var(--tile-w) * 0.3267);
+  inset-inline-start: 35vw;
+  pointer-events: none; /* let drags through the transparent overlay box */
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  transform-origin: center; /* browsing fade collapses into itself, in place */
+}
+
+/* Manual horizontal browsing of the collage clears the overlay type for
+   good (js/main.js adds .browsing on the first wheel/touch/drag; nothing
+   removes it until reload). The dot menu lives at the right edge
+   permanently, not only while browsing. */
+.hero-collage.browsing .hero-type {
+  transform: scale(0.42);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The lines opt back in for clicks normally; once faded for good they must
+   not stay as invisible ghost-links over the collage. */
+.hero-collage.browsing .typed-line { pointer-events: none; }
+
+/* Pinned to the viewport's right edge and visible at all times, so the
+   section jumps stay reachable anywhere on the page (same floating treatment
+   as the brand widget). The bg ring keeps them legible over collage tiles. */
+.dot-nav {
+  position: fixed;
+  inset-inline-end: var(--gutter);
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.dot-nav a {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--fg);
+  border-radius: 50%;
+  background: var(--bg);
+  text-decoration: none;
+  opacity: 1;
+  box-shadow: 0 0 0 2px var(--bg);
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dot-nav a:hover,
+.dot-nav a:focus-visible {
+  background: var(--fg);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--gold);
+}
+
+/* Current section (js/main.js scroll-spy marks the dot, click sets it too). */
+.dot-nav a.is-active {
+  background: var(--fg);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--gold);
+}
+
+.hero-type .typed-line { pointer-events: auto; }
+
+.typed {
+  font-size: calc(var(--tile-w) * 0.1867); /* 56px at the reference's 300px tile */
+  line-height: 1.4;
+  color: var(--block-fg);
+}
+
+.typed-line {
+  display: block;
+  width: fit-content;
+  background: var(--block);
+  color: var(--block-fg);
+  padding: 0.2em 0.6em;
+  margin-block-end: 0.2em;
+  text-decoration: none;
+}
+
+/* main.js sets [hidden] on lines it hasn't typed yet. Without this the rule
+   above wins — author `display: block` beats the UA sheet's `[hidden]
+   { display: none }` at equal specificity — and each pending line renders as
+   an empty black box the size of its own padding. */
+.typed-line[hidden] { display: none; }
+
+a.typed-line {
+  text-decoration: underline;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.08em;
+}
+
+a.typed-line:hover,
+a.typed-line:focus-visible {
+  color: var(--gold);
+  text-decoration-thickness: 0.1em;
+}
+
+a.typed-line:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--gold);
+}
+
+.cursor::after {
+  content: "|";
+  animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Below ~832px there isn't room for a 35vw indent plus the longest line
+   ("See what I've been up to" at 56px), so the type moves to the gutter and
+   steps down proportionally to the viewport. */
+@media (max-width: 52rem) {
+  .hero-type { inset-inline-start: var(--gutter); }
+  .typed { font-size: clamp(1.15rem, 6vw, 2.5rem); }
+}
+
+@media (max-width: 26rem) {
+  .typed { font-size: clamp(1rem, 5.4vw, 1.6rem); }
+}
+
+/* ---- Buttons: black blocks, gold on hover (live-site language) ---- */
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-block-start: var(--s4);
+}
+
+.btn {
+  display: inline-block;
+  font-weight: 600;
+  text-decoration: none;
+  padding: var(--s1) var(--s3);
+  border: 1px solid var(--fg);
+  color: var(--fg);
+  background: var(--bg-raised);
+}
+
+.btn:hover { color: var(--gold); background: var(--block); border-color: var(--block); }
+
+.btn--primary {
+  background: var(--block);
+  border-color: var(--block);
+  color: var(--block-fg);
+}
+
+.btn--primary:hover { color: var(--gold); }
+
+/* ---- Work showcase: stacked feature entries, one per case study ---- */
+.work-list {
+  display: grid;
+  gap: var(--s8);
+  margin-block-start: var(--s4);
+}
+
+.work-entry {
+  display: grid;
+  gap: var(--s3) var(--s6);
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Mid widths: one card per row, image beside text. */
+@media (min-width: 56rem) and (max-width: 74.99rem) {
+  .work-entry { grid-template-columns: 3fr 2fr; }
+}
+
+/* Wide screens: 2-up card grid, so 4 entries read as 2x2 rather than 1x4.
+   Each card stacks (image over text) since it's now only half the width. */
+@media (min-width: 75rem) {
+  .work-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s8) var(--s6);
+  }
+}
+
+/* Direct child only — the logo inside .work-plate must not be cover-cropped. */
+.work-entry > img {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+
+/* Logo plate: stands in for a cover image on gated entries. */
+.work-plate {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 3 / 2;
+  padding: 12%;
+  background: #f1f1f3;
+}
+
+.work-plate--dark { background: #141414; }
+
+.work-plate img {
+  width: 100%;
+  max-width: 22rem;
+  height: auto;
+}
+
+
+.work-index {
+  display: block;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-block-end: var(--s2);
+}
+
+.work-entry h3 {
+  font-size: var(--fs-2);
+  margin-block-end: var(--s2);
+}
+
+.work-entry .block {
+  display: inline-block;
+  background: var(--block);
+  color: var(--block-fg);
+  padding: 0.2em 0.6em;
+  margin-inline-start: -0.6em; /* optically align text with the column edge */
+}
+
+.work-entry:hover .block,
+.work-entry:focus-visible .block { color: var(--gold); }
+
+.work-snapshot {
+  display: block;
+  color: var(--muted);
+  max-width: 44ch;
+  margin-block-end: var(--s3);
+}
+
+.work-cta {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.work-cta::before { content: "."; }
+
+.work-entry:hover .work-cta { color: var(--fg); }
+
+/* Text plate: stands in for a cover image where no public imagery exists. */
+.work-plate--text { background: var(--block); }
+
+.work-plate--text .plate-mark {
+  font-size: var(--fs-2);
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--block-fg);
+}
+
+/* Inline external link on non-card entries (e.g. live Telo site). */
+.work-link {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.work-link:hover { text-decoration-thickness: 2px; }
+
+/* ---- Education ---- */
+.edu {
+  display: grid;
+  gap: var(--s4);
+  margin-block-start: var(--s4);
+  counter-reset: edu;
+}
+
+@media (min-width: 60rem) {
+  .edu {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s6);
+  }
+}
+
+.edu-item {
+  border-top: 2px solid var(--fg);
+  padding-block-start: var(--s2);
+}
+
+.edu-step {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-block: 0 var(--s1);
+}
+
+.edu-item h3 {
+  font-size: var(--fs-1);
+  margin-block-end: var(--s1);
+}
+
+.edu-item .meta { margin-block-end: var(--s1); }
+
+.edu-item p:last-child {
+  color: var(--muted);
+  margin-block-end: 0;
+}
+
+.edu-note {
+  font-size: var(--fs-1);
+  max-width: 68ch;
+  margin-block: var(--s4) 0;
+}
+
+/* ---- About ---- */
+.split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: var(--s6);
+  align-items: start;
+}
+
+.portrait {
+  width: min(16rem, 60%);
+}
+
+/* Education merged into About: breathe between the intro split and the
+   "How I got to full stack" snap row. */
+.split + h3 {
+  margin-block-start: var(--s8);
+  font-size: var(--fs-2);
+}
+
+/* ---- Case study (only archived pages; styles kept for re-use later) ---- */
+.context {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: var(--s2) var(--s4);
+  border-block: 1px solid var(--line);
+  padding-block: var(--s3);
+  margin-block: var(--s4) var(--s6);
+}
+
+.context dt {
+  font-size: var(--fs--1);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.context dd {
+  margin: var(--s1) 0 0;
+}
+
+.case figure {
+  margin-block: var(--s6);
+}
+
+.case figure img {
+  width: 100%;
+  border: 1px solid var(--line);
+}
+
+/* Portrait product shots: cap the height so a tall render doesn't push the
+   article off-screen, and centre it in the text column. */
+.case img.portrait {
+  width: auto;
+  max-height: min(34rem, 70vh);
+  margin-inline: auto;
+}
+
+.case figcaption {
+  font-size: var(--fs--1);
+  color: var(--muted);
+  margin-block-start: var(--s1);
+}
+
+.todo {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ---- Password gate (js/gate.js) ---- */
+.gate {
+  display: grid;
+  gap: var(--s2);
+  justify-items: start;
+  max-width: 24rem;
+  border-block: 1px solid var(--line);
+  padding-block: var(--s4);
+  margin-block: var(--s4) var(--s6);
+}
+
+.gate label {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.gate input {
+  width: 100%;
+  font: inherit;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--fg);
+  border-radius: var(--radius);
+  padding: var(--s1) var(--s2);
+}
+
+.gate button {
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--block-fg);
+  background: var(--block);
+  border: 1px solid var(--block);
+  border-radius: var(--radius);
+  padding: var(--s1) var(--s3);
+}
+
+.gate button:hover,
+.gate button:focus-visible { color: var(--gold); }
+
+.gated:focus { outline: none; }
+
+/* ---- Footer / contact / next-nav ---- */
+.contact h2 { margin-block-end: var(--s1); }
+
+.contact .big-link {
+  display: inline-block;
+  font-size: var(--fs-2);
+  font-weight: 600;
+  background: var(--block);
+  color: var(--block-fg);
+  padding: 0.2em 0.6em;
+  margin-block-start: var(--s2);
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.08em;
+}
+
+.contact .big-link:hover,
+.contact .big-link:focus-visible {
+  color: var(--gold);
+  text-decoration-thickness: 0.1em;
+}
+
+.contact .big-link:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--gold);
+}
+
+.next-nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--s3);
+  border-top: 1px solid var(--line);
+  margin-block-start: var(--s8);
+  padding-block-start: var(--s4);
+}
+
+.next-nav a {
+  display: block;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--fs-1);
+}
+
+.next-nav .meta { display: block; margin-block-end: var(--s1); }
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  margin-block-start: var(--s8);
+  padding-block: var(--s4);
+}
+
+.site-footer .wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s3);
+}
+
+.site-footer .meta {
+  font-size: var(--fs-label);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ---- Motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  html.js { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

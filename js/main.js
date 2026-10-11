@@ -1,0 +1,432 @@
+document.documentElement.classList.add('js');
+
+function reduceMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+var year = document.querySelector('[data-year]');
+if (year) year.textContent = String(new Date().getFullYear());
+
+/* Typewriter hero. Lines exist statically in the markup (works JS-off);
+   this empties them and retypes, matching stevenbleau.design's landing. */
+(function () {
+  var container = document.getElementById('typed-container');
+  if (!container) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var lines = Array.prototype.slice.call(container.querySelectorAll('.typed-line'));
+  if (!lines.length) return;
+
+  var texts = lines.map(function (el) { return el.textContent; });
+  lines.forEach(function (el) {
+    el.textContent = '';
+    el.classList.remove('cursor');
+    el.hidden = true;
+  });
+
+  var lineIndex = 0;
+  var charIndex = 0;
+
+  function type() {
+    if (lineIndex >= lines.length) return;
+    var el = lines[lineIndex];
+    var text = texts[lineIndex];
+
+    if (charIndex === 0) {
+      el.hidden = false;
+      el.classList.add('cursor');
+    }
+
+    if (charIndex <= text.length) {
+      el.textContent = text.substring(0, charIndex);
+      charIndex++;
+      setTimeout(type, 25);
+    } else {
+      // keep cursor blinking on the final line
+      if (lineIndex < lines.length - 1) el.classList.remove('cursor');
+      lineIndex++;
+      charIndex = 0;
+      setTimeout(type, 500);
+    }
+  }
+
+  type();
+})();
+
+/* Floating brand widget: over the hero the wordmark shows expanded; once the
+   page scrolls past the hero the wordmark condenses to just the logo (CSS in
+   .is-condensed) and STAYS condensed for the rest of the page's life — the
+   only ways back to expanded are hovering/focusing the mark (CSS) or
+   reloading the page. */
+(function () {
+  var brand = document.querySelector('.brand-float');
+  if (!brand) return;
+  var hero = document.querySelector('.hero-collage');
+  var latched = false;
+  function update() {
+    if (latched) return;
+    var threshold = (hero ? hero.offsetHeight : window.innerHeight) * 0.65;
+    if (window.scrollY > threshold) {
+      latched = true;
+      brand.classList.add('is-condensed');
+    }
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+})();
+
+/* Dot menu scroll-spy: the dot whose section fills the viewport middle is
+   the active one — by click (set immediately for feedback) and by scroll.
+   Sections that have no dot (education, contact) leave the last match
+   active, so a dot always marks where you are. */
+(function () {
+  var dots = Array.prototype.slice.call(document.querySelectorAll('.dot-nav a'));
+  if (dots.length < 2) return;
+  var targets = dots.map(function (d) {
+    var href = d.getAttribute('href') || '';
+    var hash = href.indexOf('#');
+    return hash === -1 ? null : document.getElementById(href.slice(hash + 1));
+  });
+  function activate(i) {
+    dots.forEach(function (d, j) {
+      d.classList.toggle('is-active', j === i);
+      if (j === i) d.setAttribute('aria-current', 'true');
+      else d.removeAttribute('aria-current');
+    });
+  }
+  function spy() {
+    var mid = window.innerHeight * 0.5;
+    for (var i = 0; i < targets.length; i++) {
+      var t = targets[i];
+      if (!t) continue;
+      var r = t.getBoundingClientRect();
+      if (r.top <= mid && r.bottom >= mid) {
+        activate(i);
+        return;
+      }
+    }
+  }
+  dots.forEach(function (d, i) {
+    d.addEventListener('click', function () { activate(i); });
+  });
+  window.addEventListener('scroll', spy, { passive: true });
+  window.addEventListener('resize', spy);
+  spy();
+})();
+
+/* Hero collage: slow auto-scroll in a seamless loop + mouse-drag scrolling.
+   Touch/trackpad scroll natively (CSS overflow). Decorative, so clones are
+   aria-hidden with the container; without JS it's a static scrollable strip. */
+(function () {
+  var strip = document.querySelector('[data-collage]');
+  if (!strip) return;
+
+  var tiles = Array.prototype.slice.call(strip.children);
+  if (!tiles.length) return;
+
+  function addCopy() {
+    tiles.forEach(function (t) { strip.appendChild(t.cloneNode()); });
+  }
+
+  // One period = the authored block; add copies until there's room to wrap
+  // on both sides at any viewport width.
+  addCopy();
+  var period = strip.children[tiles.length].offsetLeft;
+  var copies = 2;
+  while (strip.scrollWidth < period * 2 + strip.clientWidth && copies < 6) {
+    addCopy();
+    copies++;
+  }
+
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var SPEED = 18; // px per second
+  var pos = period; // start one period in so leftward scrolling has room
+  var pausedUntil = 0;
+  var dragging = false, startX = 0, startScroll = 0;
+  var last = null;
+
+  strip.scrollLeft = pos;
+
+  function rest(ms) { pausedUntil = performance.now() + ms; }
+
+  var hero = strip.closest('.hero-collage');
+  var brand = document.querySelector('.brand-float');
+  /* One-shot: the first swipe/drag fades the hero type away and condenses
+     the floating brand to just the logo, both for the life of the page —
+     no timer restores them. */
+  function browsing() {
+    if (!hero) return;
+    hero.classList.add('browsing');
+    if (brand) brand.classList.add('is-condensed');
+  }
+
+  function frame(ts) {
+    var auto = !reduce && !dragging && ts > pausedUntil;
+    if (auto && last !== null) {
+      pos += SPEED * Math.min(ts - last, 100) / 1000;
+      strip.scrollLeft = pos;
+    } else {
+      pos = strip.scrollLeft;
+    }
+    last = ts;
+
+    // seamless wrap, keeping any in-flight drag anchored
+    if (strip.scrollLeft >= period * 2) {
+      strip.scrollLeft -= period;
+      pos -= period;
+      startScroll -= period;
+    } else if (strip.scrollLeft <= 0) {
+      strip.scrollLeft += period;
+      pos += period;
+      startScroll += period;
+    }
+    hsbSync();
+    requestAnimationFrame(frame);
+  }
+
+  /* Draggable scrollbar for mouse users: thumb mirrors scroll position and is
+     re-synced every frame (the strip auto-scrolls). Dragging the thumb scrolls
+     the strip and pauses the loop; clicking the track jumps. The seamless loop
+     re-anchors scrollLeft at the period boundaries, so the thumb fraction maps
+     the current position inside [0, scrollWidth - clientWidth]. */
+  var track = document.createElement('div');
+  track.className = 'hsb';
+  var thumb = document.createElement('div');
+  thumb.className = 'hsb-thumb';
+  thumb.setAttribute('role', 'scrollbar');
+  thumb.setAttribute('aria-label', 'Scroll the work gallery');
+  thumb.setAttribute('aria-orientation', 'horizontal');
+  track.appendChild(thumb);
+  hero.appendChild(track);
+
+  var thumbDrag = false, tStartX = 0, tStartScroll = 0;
+  function hsbSync() {
+    var max = strip.scrollWidth - strip.clientWidth;
+    var trackW = track.clientWidth;
+    if (max <= 0 || trackW <= 0) return;
+    thumb.style.width = Math.max(24, (strip.clientWidth / strip.scrollWidth) * trackW) + 'px';
+    if (!thumbDrag) thumb.style.marginLeft = (strip.scrollLeft / max) * (trackW - thumb.offsetWidth) + 'px';
+  }
+
+  thumb.addEventListener('pointerdown', function (e) {
+    thumbDrag = true;
+    tStartX = e.clientX;
+    tStartScroll = strip.scrollLeft;
+    thumb.setPointerCapture(e.pointerId);
+    rest(2500);
+    e.preventDefault();
+  });
+  thumb.addEventListener('pointermove', function (e) {
+    if (!thumbDrag) return;
+    var maxScroll = strip.scrollWidth - strip.clientWidth;
+    var span = track.clientWidth - thumb.offsetWidth;
+    var target = tStartScroll + (e.clientX - tStartX) * (maxScroll / span);
+    target = Math.max(0, Math.min(maxScroll, target));
+    strip.scrollLeft = target;
+    pos = target;
+    rest(1000);
+  });
+  ['pointerup', 'pointercancel'].forEach(function (ev) {
+    thumb.addEventListener(ev, function () { thumbDrag = false; rest(2500); });
+  });
+  track.addEventListener('pointerdown', function (e) {
+    if (e.target === thumb) return;
+    var tw = thumb.offsetWidth;
+    var frac = (e.clientX - track.getBoundingClientRect().left - tw / 2) / (track.clientWidth - tw);
+    frac = Math.max(0, Math.min(1, frac));
+    strip.scrollLeft = frac * (strip.scrollWidth - strip.clientWidth);
+    pos = strip.scrollLeft;
+    rest(2500);
+    browsing();
+  });
+
+  ['wheel', 'touchstart'].forEach(function (ev) {
+    strip.addEventListener(ev, function () { rest(2500); browsing(); }, { passive: true });
+  });
+
+  strip.addEventListener('pointerdown', function (e) {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    dragging = true;
+    startX = e.clientX;
+    startScroll = strip.scrollLeft;
+    strip.classList.add('dragging');
+    strip.setPointerCapture(e.pointerId);
+    browsing();
+  });
+
+  strip.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    strip.scrollLeft = startScroll - (e.clientX - startX);
+    browsing();
+  });
+
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    strip.classList.remove('dragging');
+    rest(2500);
+  }
+
+  strip.addEventListener('pointerup', endDrag);
+  strip.addEventListener('pointercancel', endDrag);
+
+  requestAnimationFrame(frame);
+})();
+
+/* Gallery post modal: clicking a collage tile (without dragging) opens an
+   Instagram-style post — shot on the left, caption on the right. Dismiss with
+   the X, a click on the backdrop, or Escape. Captions keyed by collage file. */
+(function () {
+  var strip = document.querySelector('[data-collage]');
+  if (!strip) return;
+
+  var CAPTIONS = {
+    '01': { t: 'Folded display stand', x: 'Accordion-plate display stand with machined wood inserts — retail-form and packaging studies.' },
+    '02': { t: 'Telo Y-Cane', x: 'Telo\'s Y-Cane forearm crutch — the one public product. Ergonomic cuff, clamp, and shaft hardware.' },
+    '03': { t: 'Performance eyewear', x: 'Shield-sunglasses development — rim studies in line work beside a true-color lens render.' },
+    '04': { t: 'Two-wheeler concept', x: 'Early scooter exploration — marker render in the studio\'s blue-and-yellow palette.' },
+    '05': { t: 'Pigeon grocery app', x: 'Pigeon grocery app concept — phone screens for pickup and delivery flows.' },
+    '06': { t: 'Weekender duffel', x: 'Weekender bag — hardware, strap, and logo-placement study for a leathergoods line.' },
+    '07': { t: 'Jig and printed assembly', x: 'Shop reality — a machined fixture beside a printed assembly from the same build cycle.' },
+    '08': { t: 'Utility chassis', x: 'Modular off-road cart chassis — wheel, deck, and packaging study for a robotics platform.' },
+    '09': { t: 'Wearable ring concept', x: 'Handheld wearable ring — proportion and grip exploration for a health device.' },
+    '10': { t: 'Scooter concept', x: 'Yellow scooter concept — rough sketches beside the polished studio render.' },
+    '11': { t: 'Cabin trailer', x: 'Enclosed cabin trailer on oversized wheels — packaging line study.' },
+    '12': { t: 'Intake device', x: 'Shroud and impeller study for an airflow device — CFD-facing render.' },
+    '13': { t: 'Mobility sketches', x: 'Scooter stance and volume studies — loose marker work.' },
+    '14': { t: 'Studio scooter render', x: 'Final surfacing of the mobility concept in the studio render.' },
+    '15': { t: 'Modular eyewear system', x: 'Eyewear system with speaker module — visor forms in sketch and render.' },
+    '16': { t: 'Footwear form language', x: 'Footwear studies — sole and upper iterations.' },
+    '17': { t: 'Cockpit sketch', x: 'Transportation interior study — seat architecture in line work.' },
+    '18': { t: 'Auto front-end studies', x: 'Front-end design iterations — grille, surfacing, and proportion.' },
+    '19': { t: 'Wellness device sketches', x: 'Wellness device exploration — charger, app, and product-form loops.' }
+  };
+
+  function keyOf(src) {
+    var m = /\/(\d{2})\.webp/.exec(src || '');
+    return m ? m[1] : null;
+  }
+
+  var overlay = document.createElement('div');
+  overlay.className = 'post-modal';
+  overlay.hidden = true;
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', 'Gallery item');
+  overlay.innerHTML =
+    '<div class="post-card">' +
+      '<div class="post-media"><img alt=""></div>' +
+      '<div class="post-caption">' +
+        '<div class="post-handle"><span>stevenbleau . design</span>' +
+        '<button class="post-close" type="button" aria-label="Close post">&times;</button></div>' +
+        '<h2 class="post-title"></h2>' +
+        '<p class="post-text"></p>' +
+        '<p class="post-index"></p>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+
+  var bigImg = overlay.querySelector('.post-media img');
+  var titleEl = overlay.querySelector('.post-title');
+  var textEl = overlay.querySelector('.post-text');
+  var indexEl = overlay.querySelector('.post-index');
+  var closeBtn = overlay.querySelector('.post-close');
+  var lastFocus = null;
+
+  var hideTimer = 0;
+  function open(tile) {
+    var k = keyOf(tile.getAttribute('src'));
+    var cap = (k && CAPTIONS[k]) || { t: 'From the studio sketchbook', x: 'A page from the working gallery.' };
+    bigImg.src = tile.getAttribute('src');
+    bigImg.alt = cap.t;
+    titleEl.textContent = cap.t;
+    textEl.textContent = cap.x;
+    indexEl.textContent = k ? '.' + k + ' \u00b7 gallery' : '';
+    lastFocus = document.activeElement;
+    clearTimeout(hideTimer);
+    overlay.hidden = false;
+    document.documentElement.classList.add('modal-open');
+    closeBtn.focus();
+    /* second frame: the transition starts from opacity 0 / offset card */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { overlay.classList.add('is-open'); });
+    });
+  }
+
+  function close() {
+    overlay.classList.remove('is-open');
+    document.documentElement.classList.remove('modal-open');
+    hideTimer = setTimeout(function () { overlay.hidden = true; }, 340);
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  /* Tiles open on a stationary press-release. The collage loop auto-scrolls,
+     so position is sampled at pointerdown and re-checked at pointerup; a
+     moving shot under a held finger is browsing, not a tap. Pointer capture
+     during a drag redirects click events to the strip, so hit-test here. */
+  var downX = 0, downY = 0, downScroll = 0;
+  strip.addEventListener('pointerdown', function (e) {
+    downX = e.clientX; downY = e.clientY;
+    downScroll = strip.scrollLeft;
+  });
+  strip.addEventListener('pointerup', function (e) {
+    if (Math.abs(e.clientX - downX) > 8 || Math.abs(e.clientY - downY) > 8) return;
+    if (Math.abs(strip.scrollLeft - downScroll) > 8) return;
+    var el = document.elementFromPoint(e.clientX, e.clientY);
+    if (el && el.tagName === 'IMG' && strip.contains(el)) open(el);
+  });
+
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+  closeBtn.addEventListener('click', close);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !overlay.hidden) close();
+  });
+})();
+
+/* Horizontal snap rows: mark the centered card .is-focus (CSS scales it up,
+   ducks the neighbors), make the strip keyboard-scrollable, and build a slot
+   pager under the strip — one clickable slot per card. Clicking a slot
+   smooth-scrolls that card to center; the centered card's slot is filled.
+   Without IntersectionObserver, the slots alone still drive scrollTo. */
+(function () {
+  document.querySelectorAll('[data-hsnap]').forEach(function (list) {
+    var items = Array.prototype.slice.call(list.children);
+    if (items.length < 2) return;
+    list.tabIndex = 0;
+    list.setAttribute('role', 'list');
+
+    var slots = document.createElement('div');
+    slots.className = 'hsnap-slots';
+    var slotEls = items.map(function (it, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'hsnap-slot';
+      b.setAttribute('aria-label', 'Show item ' + (i + 1) + ' of ' + items.length);
+      b.addEventListener('click', function () {
+        list.scrollTo({
+          left: it.offsetLeft + it.offsetWidth / 2 - list.clientWidth / 2,
+          behavior: reduceMotion() ? 'auto' : 'smooth',
+        });
+      });
+      slots.appendChild(b);
+      return b;
+    });
+    list.insertAdjacentElement('afterend', slots);
+
+    function activate(it) {
+      var i = items.indexOf(it);
+      slotEls.forEach(function (s, j) { s.classList.toggle('is-active', j === i); });
+    }
+    activate(items[0]);
+
+    if (!('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        en.target.classList.toggle('is-focus', en.isIntersecting);
+        if (en.isIntersecting) activate(en.target);
+      });
+    }, { root: list, threshold: 0.75 });
+    items.forEach(function (it) { io.observe(it); });
+  });
+})();

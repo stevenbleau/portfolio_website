@@ -1,0 +1,11 @@
+.DS_Store
+
+# Secrets for the password-gated case studies.
+#
+# Everything committed here is published by GitHub Pages — including anything
+# under work/_archive/, which is unlinked but still served at its URL. So the
+# gate passwords and the unencrypted case study copy must never be committed,
+# or the encryption is pointless. Only the ciphertext (.blob.txt, and the
+# data-enc attribute in the page) is safe to ship.
+work/_archive/_tools/PASSWORDS.md
+work/_archive/_tools/*.fragment.html
