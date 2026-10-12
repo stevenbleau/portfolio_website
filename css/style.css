@@ -567,7 +567,7 @@ html.modal-open { overflow: hidden; }
 .post-card {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(15rem, 1fr);
-  width: min(64rem, 94vw);
+  width: min(64rem, 100%);
   max-height: 90vh;
   background: var(--bg-raised);
   border: 1px solid var(--line);
