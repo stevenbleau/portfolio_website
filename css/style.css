@@ -725,7 +725,7 @@ html.modal-open { overflow: hidden; }
 .hero-type .typed-line { pointer-events: auto; }
 
 .typed {
-  font-size: calc(var(--tile-w) * 0.1867); /* 56px at the reference's 300px tile */
+  font-size: calc(var(--tile-w) * 0.2334); /* 70px at the reference's 300px tile */
   line-height: 1.4;
   color: var(--block-fg);
 }
@@ -784,7 +784,7 @@ a.typed-line:focus-visible {
      scale transform still applies on top), horizontally centered; the container
      hug-shrinks so lines stay left-aligned inside it, like desktop. */
   .hero-type { inset-block-start: 50%; inset-inline: var(--gutter); translate: 0 -50%; }
-  .typed { font-size: clamp(1.35rem, 7vw, 2.75rem); width: max-content; max-width: 100%; margin-inline: auto; }
+  .typed { font-size: clamp(1.69rem, 8.75vw, 3.44rem); width: max-content; max-width: 100%; margin-inline: auto; }
   .typed-line { margin-inline: 0; }
   .brand-float { margin-inline-end: 0.75rem; }
 }
@@ -797,7 +797,7 @@ a.typed-line:focus-visible {
 }
 
 @media (max-width: 26rem) {
-  .typed { font-size: clamp(1.15rem, 5.8vw, 1.8rem); }
+  .typed { font-size: clamp(1.44rem, 7.25vw, 2.25rem); }
 }
 
 /* ---- Buttons: black blocks, gold on hover (live-site language) ---- */
