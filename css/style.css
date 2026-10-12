@@ -731,17 +731,28 @@ html.modal-open { overflow: hidden; }
 
 .hero-type .typed-line { pointer-events: auto; }
 
-/* Minimize control: same dismissal a first swipe gives, but explicit. */
+/* Minimize affordance: corner brackets at the block's first and last corners
+   mark the intro text as dismissable, the caret chip collapses it (same fade
+   a first swipe gives). No word, just marks. */
+.typed { position: relative; }
+
+.typed::before,
+.typed::after {
+  content: ""; position: absolute; width: 12px; height: 12px; opacity: 0.8; pointer-events: none; border-color: currentColor; }
+
+.typed::before { top: -0.4em; left: -0.3em; border-top: 2px solid; border-left: 2px solid; }
+.typed::after { bottom: -0.2em; right: -0.3em; border-bottom: 2px solid; border-right: 2px solid; }
+
 .typed-min {
-  display: block;
-  width: fit-content;
+  display: inline-block;
   background: var(--block);
   color: var(--block-fg);
   border: none;
   font: inherit;
-  font-size: 0.6em;
-  padding: 0.15em 0.6em;
-  margin-block-start: var(--s1);
+  font-size: 0.5em;
+  line-height: 1;
+  padding: 0.12em 0.5em;
+  margin-block-start: 0.3em;
   cursor: pointer;
   pointer-events: auto;
 }
