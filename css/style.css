@@ -61,6 +61,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html.js { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
@@ -236,7 +237,7 @@ a.wordmark:hover span { text-decoration-thickness: 2px; }
    or focusing the condensed mark expands the wordmark back out; clicking
    jumps home to the work gallery. */
 .brand-float {
-  --brand-logo-w: clamp(2.4rem, 3vw, 3rem);
+  --brand-logo-w: clamp(2.6rem, 3vw, 3.25rem);
   position: fixed;
   /* Shift the widget toward the edge so the logo's CENTER sits on the same
      line as the 14px dots' center (inset-end + half the logo width = gutter
@@ -294,7 +295,8 @@ a.wordmark:hover span { text-decoration-thickness: 2px; }
 
 /* Over the hero collage the widget sits on top of the browsing dots. */
 @media (max-width: 52rem) {
-  .brand-float { --brand-logo-w: 2.25rem; }
+  /* App-icon sized mark on phones: easier thumb-target, still edge-tucked. */
+  .brand-float { --brand-logo-w: 3.25rem; }
 }
 
 .site-nav ul {
@@ -646,7 +648,8 @@ html.modal-open { overflow: hidden; }
 
 @media (max-width: 40rem) {
   .post-card { grid-template-columns: 1fr; }
-  .post-media img { max-height: 46vh; }
+  .post-media img,
+  .post-media video { max-height: 46vh; }
 }
 
 /* Reference geometry: block left edge at 35vw (tracks the viewport at every
@@ -771,11 +774,23 @@ a.typed-line:focus-visible {
 }
 
 /* Below ~832px there isn't room for a 35vw indent plus the longest line
-   ("See what I've been up to" at 56px), so the type moves to the gutter and
-   steps down proportionally to the viewport. */
+   ("See what I've been up to" at 56px), so the type is centered in the gutter
+   box and steps down proportionally to the viewport. */
 @media (max-width: 52rem) {
-  .hero-type { inset-inline-start: var(--gutter); }
+  /* Smaller tiles so the collage reads as a grid (two+ across) instead of one
+     huge photo per row on a phone; all hero ratios derive from --tile-w. */
+  .hero-collage { --tile-w: clamp(168px, 44vw, 320px); }
+  .hero-type { inset-inline: var(--gutter); }
   .typed { font-size: clamp(1.15rem, 6vw, 2.5rem); }
+  /* Each black line box is fit-content, so auto margins center the stack. */
+  .typed-line { margin-inline: auto; }
+}
+
+/* Keep the fixed dot column and the enlarged brand mark over whitespace in the
+   reading sections: later sections' cards and text get a wider right inset.
+   The hero keeps its full-bleed edge (dots sit on tiles there by design). */
+@media (max-width: 52rem) {
+  .wrap { padding-inline-end: calc(var(--gutter) + 2.5rem); }
 }
 
 @media (max-width: 26rem) {
