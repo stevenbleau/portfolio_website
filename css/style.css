@@ -436,9 +436,15 @@ main .wrap > section {
   opacity: 1;
 }
 
-/* Inside the snap row, work cards are always plate-beside-text at roomy widths. */
-@media (min-width: 56rem) {
+/* From tablet widths up: one card per row, image beside text. Below the wide
+   layout, cap the plate height so the card's text still fits one screen. */
+@media (min-width: 52rem) {
   .work-list--h .work-entry { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 52rem) and (max-width: 74.99rem) {
+  .work-list--h .work-entry > img,
+  .work-list--h .work-entry .work-plate { aspect-ratio: auto; height: min(44dvh, 420px); }
+  .work-list--h .work-entry .work-plate--video { aspect-ratio: auto; }
 }
 
 /* Currently on wide screens (MacBook Pro fullscreen): media stacked over text
@@ -773,6 +779,12 @@ a.typed-line:focus-visible {
   51%, 100% { opacity: 0; }
 }
 
+/* Tablet and below: vertically center the hero type box. Desktop keeps it high
+   against the grid's top offset; narrower columns make that read as too high. */
+@media (max-width: 75rem) {
+  .hero-type { inset-block-start: 50%; translate: 0 -50%; }
+}
+
 /* Below ~832px there isn't room for a 35vw indent plus the longest line
    ("See what I've been up to" at 56px), so the type is centered in the gutter
    box and steps down proportionally to the viewport. */
@@ -780,10 +792,9 @@ a.typed-line:focus-visible {
   /* Smaller tiles so the collage reads as a grid (two+ across) instead of one
      huge photo per row on a phone; all hero ratios derive from --tile-w. */
   .hero-collage { --tile-w: clamp(168px, 44vw, 320px); }
-  /* Box vertically centered in the hero (translate property, so the browsing
-     scale transform still applies on top), horizontally centered; the container
-     hug-shrinks so lines stay left-aligned inside it, like desktop. */
-  .hero-type { inset-block-start: 50%; inset-inline: var(--gutter); translate: 0 -50%; }
+  /* Horizontally centered; the container hug-shrinks so lines stay left-aligned
+     inside it, like desktop. */
+  .hero-type { inset-inline: var(--gutter); }
   .typed { font-size: clamp(1.7rem, 8vw, 2.6rem); width: max-content; max-width: 100%; margin-inline: auto; }
   .typed-line { margin-inline: 0; }
   .brand-float { margin-inline-end: 0.75rem; }
