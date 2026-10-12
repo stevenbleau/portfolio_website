@@ -732,8 +732,9 @@ html.modal-open { overflow: hidden; }
 .hero-type .typed-line { pointer-events: auto; }
 
 /* Minimize affordance: bold dark corner brackets frame the intro block, and a
-   square button in the same bracket language (inward arrows glyph) sits at the
-   end of the last line, tucked into the bottom-right corner. No chips. */
+   square outlined button with the same bracket stroke (two opposing corners)
+   sits at the end of the last line. It fades in once the typewriter has
+   finished every line (js/main.js sets .typed-done). No chips. */
 .typed { position: relative; }
 
 .typed-last { display: flex; align-items: center; gap: 0.5em; }
@@ -753,13 +754,25 @@ html.modal-open { overflow: hidden; }
   background: transparent;
   color: rgba(0, 0, 0, 0.9);
   border: 3px solid rgba(0, 0, 0, 0.9);
+  border-radius: 0;
   font: inherit;
   font-size: 0.45em;
   line-height: 1;
   padding: 0.1em 0.25em;
   cursor: pointer;
   pointer-events: auto;
+  transition: background 0.2s ease;
 }
+
+.js .typed-min { opacity: 0; transition: opacity 0.35s ease, background 0.2s ease; }
+.js .typed-done .typed-min { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .typed-min { transition: none; }
+}
+
+/* Matches the corner brackets 1:1: same 14px box, same 3px stroke weight. */
+.typed-min svg { display: block; width: 14px; height: 14px; }
 
 .typed-min:hover { box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.9); }
 

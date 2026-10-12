@@ -12,7 +12,10 @@ if (year) year.textContent = String(new Date().getFullYear());
 (function () {
   var container = document.getElementById('typed-container');
   if (!container) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    container.classList.add('typed-done');
+    return;
+  }
 
   var lines = Array.prototype.slice.call(container.querySelectorAll('.typed-line'));
   if (!lines.length) return;
@@ -46,7 +49,8 @@ if (year) year.textContent = String(new Date().getFullYear());
       if (lineIndex < lines.length - 1) el.classList.remove('cursor');
       lineIndex++;
       charIndex = 0;
-      setTimeout(type, 500);
+      if (lineIndex >= lines.length) container.classList.add('typed-done');
+      else setTimeout(type, 500);
     }
   }
 
