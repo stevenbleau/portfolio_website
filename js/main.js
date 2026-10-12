@@ -360,6 +360,7 @@ if (year) year.textContent = String(new Date().getFullYear());
   var lastFocus = null;
 
   var hideTimer = 0;
+  var openedAt = 0;
   function open(tile) {
     var src = tile.getAttribute('src');
     var k = keyOf(src);
@@ -384,6 +385,7 @@ if (year) year.textContent = String(new Date().getFullYear());
     lastFocus = document.activeElement;
     clearTimeout(hideTimer);
     overlay.hidden = false;
+    openedAt = Date.now();
     document.documentElement.classList.add('modal-open');
     closeBtn.focus();
     /* second frame: the transition starts from opacity 0 / offset card */
@@ -416,7 +418,15 @@ if (year) year.textContent = String(new Date().getFullYear());
     if (el && (el.tagName === 'IMG' || el.tagName === 'VIDEO') && strip.contains(el)) open(el);
   });
 
-  overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+  /* Backdrop click dismisses. The tile's pointerup already opened the overlay,
+     and the click dispatched right after can land on the now-visible backdrop
+     (tile edges, top/bottom rows sit near row gaps), which would instantly
+     close what just opened. Ignore the backdrop during that hand-off window. */
+  overlay.addEventListener('click', function (e) {
+    if (e.target !== overlay) return;
+    if (Date.now() - openedAt < 400) return;
+    close();
+  });
   closeBtn.addEventListener('click', close);
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !overlay.hidden) close();
