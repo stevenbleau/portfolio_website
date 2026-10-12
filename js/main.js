@@ -55,7 +55,7 @@ if (year) year.textContent = String(new Date().getFullYear());
 
 /* Floating brand widget: over the hero the wordmark shows expanded; once the
    page scrolls past the hero the wordmark condenses to just the logo (CSS in
-   .is-condensed) and STAYS condensed for the rest of the page's life — the
+   .is-condensed) and STAYS condensed for the rest of the page's life, the
    only ways back to expanded are hovering/focusing the mark (CSS) or
    reloading the page. */
 (function () {
@@ -77,7 +77,7 @@ if (year) year.textContent = String(new Date().getFullYear());
 })();
 
 /* Dot menu scroll-spy: the dot whose section fills the viewport middle is
-   the active one — by click (set immediately for feedback) and by scroll.
+   the active one, by click (set immediately for feedback) and by scroll.
    Sections that have no dot (education, contact) leave the last match
    active, so a dot always marks where you are. */
 (function () {
@@ -295,35 +295,35 @@ if (year) year.textContent = String(new Date().getFullYear());
 })();
 
 /* Gallery post modal: clicking a collage tile (without dragging) opens an
-   Instagram-style post — shot on the left, caption on the right. Dismiss with
+   Instagram-style post, shot on the left, caption on the right. Dismiss with
    the X, a click on the backdrop, or Escape. Captions keyed by collage file. */
 (function () {
   var strip = document.querySelector('[data-collage]');
   if (!strip) return;
 
   var CAPTIONS = {
-    '01': { t: 'Folded display stand', x: 'Accordion-plate display stand with machined wood inserts — retail-form and packaging studies.' },
-    '02': { t: 'Telo Y-Cane', x: 'Telo\'s Y-Cane forearm crutch — the one public product. Ergonomic cuff, clamp, and shaft hardware.' },
-    '03': { t: 'Performance eyewear', x: 'Shield-sunglasses development — rim studies in line work beside a true-color lens render.' },
-    '04': { t: 'Two-wheeler concept', x: 'Early scooter exploration — marker render in the studio\'s blue-and-yellow palette.' },
-    '05': { t: 'Pigeon grocery app', x: 'Pigeon grocery app concept — phone screens for pickup and delivery flows.' },
-    '06': { t: 'Weekender duffel', x: 'Weekender bag — hardware, strap, and logo-placement study for a leathergoods line.' },
-    '07': { t: 'Jig and printed assembly', x: 'Shop reality — a machined fixture beside a printed assembly from the same build cycle.' },
-    '08': { t: 'Utility chassis', x: 'Modular off-road cart chassis — wheel, deck, and packaging study for a robotics platform.' },
-    '09': { t: 'Wearable ring concept', x: 'Handheld wearable ring — proportion and grip exploration for a health device.' },
-    '10': { t: 'Scooter concept', x: 'Yellow scooter concept — rough sketches beside the polished studio render.' },
-    '11': { t: 'Cabin trailer', x: 'Enclosed cabin trailer on oversized wheels — packaging line study.' },
-    '12': { t: 'Intake device', x: 'Shroud and impeller study for an airflow device — CFD-facing render.' },
-    '13': { t: 'Mobility sketches', x: 'Scooter stance and volume studies — loose marker work.' },
+    '01': { t: 'Folded display stand', x: 'Accordion-plate display stand with machined wood inserts, retail-form and packaging studies.' },
+    '02': { t: 'Telo Y-Cane', x: 'Telo\'s Y-Cane forearm crutch, the one public product. Ergonomic cuff, clamp, and shaft hardware.' },
+    '03': { t: 'Performance eyewear', x: 'Shield-sunglasses development, rim studies in line work beside a true-color lens render.' },
+    '04': { t: 'Two-wheeler concept', x: 'Early scooter exploration, marker render in the studio\'s blue-and-yellow palette.' },
+    '05': { t: 'Pigeon grocery app', x: 'Pigeon grocery app concept, phone screens for pickup and delivery flows.' },
+    '06': { t: 'Weekender duffel', x: 'Weekender bag, hardware, strap, and logo-placement study for a leathergoods line.' },
+    '07': { t: 'Jig and printed assembly', x: 'Shop reality, a machined fixture beside a printed assembly from the same build cycle.' },
+    '08': { t: 'Utility chassis', x: 'Modular off-road cart chassis, wheel, deck, and packaging study for a robotics platform.' },
+    '09': { t: 'Wearable ring concept', x: 'Handheld wearable ring, proportion and grip exploration for a health device.' },
+    '10': { t: 'Scooter concept', x: 'Yellow scooter concept, rough sketches beside the polished studio render.' },
+    '11': { t: 'Cabin trailer', x: 'Enclosed cabin trailer on oversized wheels, packaging line study.' },
+    '12': { t: 'Intake device', x: 'Shroud and impeller study for an airflow device, CFD-facing render.' },
+    '13': { t: 'Mobility sketches', x: 'Scooter stance and volume studies, loose marker work.' },
     '14': { t: 'Studio scooter render', x: 'Final surfacing of the mobility concept in the studio render.' },
-    '15': { t: 'Modular eyewear system', x: 'Eyewear system with speaker module — visor forms in sketch and render.' },
-    '16': { t: 'Footwear form language', x: 'Footwear studies — sole and upper iterations.' },
-    '17': { t: 'Cockpit sketch', x: 'Transportation interior study — seat architecture in line work.' },
-    '18': { t: 'Auto front-end studies', x: 'Front-end design iterations — grille, surfacing, and proportion.' },
-    '19': { t: 'Wellness device sketches', x: 'Wellness device exploration — charger, app, and product-form loops.' },
-    '20': { t: 'Robot render', x: 'Robot hardware render — enclosure and packaging study from the R&D bench.' },
-    '21': { t: 'Depth-sense test', x: 'Depth-sensing rig test — live depth capture from a sensing bring-up.' },
-    '22': { t: 'Dotte motion', x: 'Dotte motion study — an animated brand/product loop from concept motion work.' }
+    '15': { t: 'Modular eyewear system', x: 'Eyewear system with speaker module, visor forms in sketch and render.' },
+    '16': { t: 'Footwear form language', x: 'Footwear studies, sole and upper iterations.' },
+    '17': { t: 'Cockpit sketch', x: 'Transportation interior study, seat architecture in line work.' },
+    '18': { t: 'Auto front-end studies', x: 'Front-end design iterations, grille, surfacing, and proportion.' },
+    '19': { t: 'Wellness device sketches', x: 'Wellness device exploration, charger, app, and product-form loops.' },
+    '20': { t: 'Robot render', x: 'Robot hardware render, enclosure and packaging study from the R&D bench.' },
+    '21': { t: 'Depth-sense test', x: 'Depth-sensing rig test, live depth capture from a sensing bring-up.' },
+    '22': { t: 'Dotte motion', x: 'Dotte motion study, an animated brand/product loop from concept motion work.' }
   };
 
   function keyOf(src) {
@@ -425,7 +425,7 @@ if (year) year.textContent = String(new Date().getFullYear());
 
 /* Horizontal snap rows: mark the centered card .is-focus (CSS scales it up,
    ducks the neighbors), make the strip keyboard-scrollable, and build a slot
-   pager under the strip — one clickable slot per card. Clicking a slot
+   pager under the strip, one clickable slot per card. Clicking a slot
    smooth-scrolls that card to center; the centered card's slot is filled.
    Without IntersectionObserver, the slots alone still drive scrollTo. */
 (function () {

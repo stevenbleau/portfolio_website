@@ -3,7 +3,7 @@
 
    The page ships ciphertext in [data-enc]; the password derives the key in the
    browser via PBKDF2 + AES-GCM (WebCrypto). Nothing readable is in the source,
-   so this is real protection, not a hidden div — it is exactly as strong as the
+   so this is real protection, not a hidden div, it is exactly as strong as the
    password. Produce the blob with work/_archive/_tools/encrypt.py.
 
    Needs a secure context (https, or localhost) for crypto.subtle. */

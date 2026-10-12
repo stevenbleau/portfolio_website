@@ -1,4 +1,4 @@
-/* Steven Bleau — Design
+/* Steven Bleau, Design
    Single stylesheet. Tokens in :root. 8px spacing scale. Titillium Web.
    Visual language matched to stevenbleau.design: monochrome black-on-white,
    square corners, gold (#f2a902) only on black surfaces (AA on black, not on white).
@@ -13,7 +13,7 @@
   --line: #e4e4e6;
   --block: #000000;      /* solid black panels (typed lines, buttons) */
   --block-fg: #ffffff;
-  --gold: #f2a902;       /* only on --block or dark bg — fails AA on white */
+  --gold: #f2a902;       /* only on --block or dark bg, fails AA on white */
   --accent: #1a1b1f;     /* links match text, underlined (live-site behavior) */
 
   /* 8px spacing scale */
@@ -194,7 +194,7 @@ ul[class], ol[class] {
   padding-block: var(--s4);
 }
 
-/* Legacy header/footer lockup — used by the archived case pages. */
+/* Legacy header/footer lockup, used by the archived case pages. */
 .wordmark {
   font-size: var(--fs-0);
   font-weight: 600; /* Titillium Web has no 500; 600 is its medium/semibold step */
@@ -305,7 +305,7 @@ a.wordmark:hover span { text-decoration-thickness: 2px; }
   padding: 0;
 }
 
-/* Near-black at weight 500, matching the reference — uppercase at this size is
+/* Near-black at weight 500, matching the reference, uppercase at this size is
    hard to read in the muted grey. Hover underlines rather than changing weight,
    which would shift the layout. */
 .site-nav a {
@@ -337,8 +337,7 @@ a.wordmark:hover span { text-decoration-thickness: 2px; }
 section { padding-block: var(--s6); }
 
 /* Full-screen snap sections: each section fills the viewport and the page
-   snaps section-to-section (scroll-snap-stop: always gives the threshold —
-   a small scroll pops to the next section instead of drifting). The header
+   snaps section-to-section (scroll-snap-stop: always gives the threshold,    a small scroll pops to the next section instead of drifting). The header
    overlays the hero and scrolls away with it, like the reference site. */
 body > .wrap--bleed:first-of-type .site-header {
   position: absolute;
@@ -442,7 +441,7 @@ main .wrap > section {
 
 /* Currently on wide screens (MacBook Pro fullscreen): media stacked over text
    in a single card, left-flush at 78% of the column so the ducked next card
-   peeks in from the right — the whitespace itself signals "scroll sideways for
+   peeks in from the right, the whitespace itself signals "scroll sideways for
    more". The plate caps at 50dvh so heading + plate + text below all fit one
    screen without scrolling. */
 @media (min-width: 75rem) {
@@ -651,7 +650,7 @@ html.modal-open { overflow: hidden; }
 }
 
 /* Reference geometry: block left edge at 35vw (tracks the viewport at every
-   width — the old 28rem cap is what made it drift left on large displays),
+   width, the old 28rem cap is what made it drift left on large displays),
    98px down from the top of the grid (98/300 of the tile width). */
 .hero-type {
   position: absolute;
@@ -739,8 +738,8 @@ html.modal-open { overflow: hidden; }
 }
 
 /* main.js sets [hidden] on lines it hasn't typed yet. Without this the rule
-   above wins — author `display: block` beats the UA sheet's `[hidden]
-   { display: none }` at equal specificity — and each pending line renders as
+   above wins, author `display: block` beats the UA sheet's `[hidden]
+   { display: none }` at equal specificity, and each pending line renders as
    an empty black box the size of its own padding. */
 .typed-line[hidden] { display: none; }
 
@@ -840,7 +839,7 @@ a.typed-line:focus-visible {
   }
 }
 
-/* Direct child only — the logo inside .work-plate must not be cover-cropped. */
+/* Direct child only, the logo inside .work-plate must not be cover-cropped. */
 .work-entry > img {
   width: 100%;
   aspect-ratio: 3 / 2;
