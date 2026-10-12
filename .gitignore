@@ -1,5 +1,9 @@
 .DS_Store
 
+# Raw, un-optimized media the web assets are generated from. Kept on disk for
+# re-encoding, never published (dotte/depth originals are 130+ MB of QuickTime).
+assets/_source/
+
 # Secrets for the password-gated case studies.
 #
 # Everything committed here is published by GitHub Pages — including anything

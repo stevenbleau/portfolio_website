@@ -253,10 +253,6 @@ a.wordmark:hover span { text-decoration-thickness: 2px; }
   width: var(--brand-logo-w);
   height: auto;
   flex-shrink: 0;
-  /* The mark sits over arbitrary page content (collage tiles, photos).
-     A tight ring in the page bg color keeps it readable on any backdrop. */
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--bg);
 }
 
 .brand-float-text {
@@ -444,6 +440,25 @@ main .wrap > section {
   .work-list--h .work-entry { grid-template-columns: 1fr 1fr; }
 }
 
+/* Currently on wide screens (MacBook Pro fullscreen): media stacked over text
+   in a single card, left-flush at 78% of the column so the ducked next card
+   peeks in from the right — the whitespace itself signals "scroll sideways for
+   more". The plate caps at 50dvh so heading + plate + text below all fit one
+   screen without scrolling. */
+@media (min-width: 75rem) {
+  #currently .work-list--h {
+    --item-w: 78%;
+    padding-inline: 0;
+  }
+  #currently .work-list--h > li { scroll-snap-align: start; }
+  #currently .work-list--h .work-entry { grid-template-columns: 1fr; }
+  /* Explicit height, not aspect-ratio + max-height: the latter makes the
+     box shrink its width to height x 3/2 when capped, leaving the plate a
+     narrow island instead of the full card width. */
+  #currently .work-plate { aspect-ratio: auto; height: min(46dvh, calc(100dvh - 470px)); }
+  #currently .work-snapshot { max-width: 72ch; }
+}
+
 /* Focus ring on the keyboard-scrollable strip. */
 .work-list--h:focus-visible,
 .edu--h:focus-visible { outline: 2px solid var(--fg); outline-offset: 4px; }
@@ -507,18 +522,23 @@ html.js .collage.dragging { cursor: grabbing; }
   cursor: grab;
 }
 
-.collage img {
+.collage img,
+.collage video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.collage video { background: #000; }
+
 /* Gallery tiles: hover expands the shot a bit out of its cell; a tap/click
    opens the post modal (js/main.js). Drag-scroll still wins over a click. */
-html.js .collage img { cursor: pointer; }
+html.js .collage img,
+html.js .collage video { cursor: pointer; }
 
-html.js .collage img:hover {
+html.js .collage img:hover,
+html.js .collage video:hover {
   position: relative;
   z-index: 2;
   transform: scale(1.045);
@@ -564,7 +584,8 @@ html.modal-open { overflow: hidden; }
   min-width: 0;
 }
 
-.post-media img {
+.post-media img,
+.post-media video {
   width: 100%;
   height: 100%;
   max-height: 90vh;
@@ -841,6 +862,36 @@ a.typed-line:focus-visible {
   width: 100%;
   max-width: 22rem;
   height: auto;
+}
+
+/* Video plate: an autoplaying, muted product video fills the 3:2 cover.
+   The brand logo sits on a solid chip so it stays legible over any frame,
+   in either color scheme. Playback is driven by IntersectionObserver
+   (js/main.js) so it only runs while on screen and off under reduced motion. */
+.work-plate--video {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  background: #141414;
+}
+
+.work-plate--video video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.work-plate--video .work-plate-logo {
+  position: absolute;
+  inset-block-end: 1rem;
+  inset-inline-start: 1rem;
+  width: min(9rem, 46%);
+  max-width: none;
+  height: auto;
+  padding: 0.55rem 0.85rem;
+  background: #ffffff;
 }
 
 

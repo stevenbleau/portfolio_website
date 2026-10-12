@@ -300,11 +300,14 @@ if (year) year.textContent = String(new Date().getFullYear());
     '16': { t: 'Footwear form language', x: 'Footwear studies — sole and upper iterations.' },
     '17': { t: 'Cockpit sketch', x: 'Transportation interior study — seat architecture in line work.' },
     '18': { t: 'Auto front-end studies', x: 'Front-end design iterations — grille, surfacing, and proportion.' },
-    '19': { t: 'Wellness device sketches', x: 'Wellness device exploration — charger, app, and product-form loops.' }
+    '19': { t: 'Wellness device sketches', x: 'Wellness device exploration — charger, app, and product-form loops.' },
+    '20': { t: 'Robot render', x: 'Robot hardware render — enclosure and packaging study from the R&D bench.' },
+    '21': { t: 'Depth-sense test', x: 'Depth-sensing rig test — live depth capture from a sensing bring-up.' },
+    '22': { t: 'Dotte motion', x: 'Dotte motion study — an animated brand/product loop from concept motion work.' }
   };
 
   function keyOf(src) {
-    var m = /\/(\d{2})\.webp/.exec(src || '');
+    var m = /\/(\d{2})\.(?:webp|mp4|webm|mov)/.exec(src || '');
     return m ? m[1] : null;
   }
 
@@ -316,7 +319,8 @@ if (year) year.textContent = String(new Date().getFullYear());
   overlay.setAttribute('aria-label', 'Gallery item');
   overlay.innerHTML =
     '<div class="post-card">' +
-      '<div class="post-media"><img alt=""></div>' +
+      '<div class="post-media"><img alt="">' +
+        '<video muted loop playsinline preload="metadata" controls hidden></video></div>' +
       '<div class="post-caption">' +
         '<div class="post-handle"><span>stevenbleau . design</span>' +
         '<button class="post-close" type="button" aria-label="Close post">&times;</button></div>' +
@@ -328,6 +332,7 @@ if (year) year.textContent = String(new Date().getFullYear());
   document.body.appendChild(overlay);
 
   var bigImg = overlay.querySelector('.post-media img');
+  var bigVid = overlay.querySelector('.post-media video');
   var titleEl = overlay.querySelector('.post-title');
   var textEl = overlay.querySelector('.post-text');
   var indexEl = overlay.querySelector('.post-index');
@@ -336,13 +341,26 @@ if (year) year.textContent = String(new Date().getFullYear());
 
   var hideTimer = 0;
   function open(tile) {
-    var k = keyOf(tile.getAttribute('src'));
+    var src = tile.getAttribute('src');
+    var k = keyOf(src);
     var cap = (k && CAPTIONS[k]) || { t: 'From the studio sketchbook', x: 'A page from the working gallery.' };
-    bigImg.src = tile.getAttribute('src');
-    bigImg.alt = cap.t;
+    var isVid = tile.tagName === 'VIDEO';
+    if (isVid) {
+      bigImg.hidden = true;
+      bigVid.hidden = false;
+      bigVid.src = src;
+      bigVid.currentTime = 0;
+      if (!reduceMotion()) bigVid.play().catch(function () {});
+    } else {
+      bigVid.pause();
+      bigVid.hidden = true;
+      bigImg.hidden = false;
+      bigImg.src = src;
+      bigImg.alt = cap.t;
+    }
     titleEl.textContent = cap.t;
     textEl.textContent = cap.x;
-    indexEl.textContent = k ? '.' + k + ' \u00b7 gallery' : '';
+    indexEl.textContent = k ? '.' + k + ' · gallery' : '';
     lastFocus = document.activeElement;
     clearTimeout(hideTimer);
     overlay.hidden = false;
@@ -355,6 +373,7 @@ if (year) year.textContent = String(new Date().getFullYear());
   }
 
   function close() {
+    bigVid.pause();
     overlay.classList.remove('is-open');
     document.documentElement.classList.remove('modal-open');
     hideTimer = setTimeout(function () { overlay.hidden = true; }, 340);
@@ -374,7 +393,7 @@ if (year) year.textContent = String(new Date().getFullYear());
     if (Math.abs(e.clientX - downX) > 8 || Math.abs(e.clientY - downY) > 8) return;
     if (Math.abs(strip.scrollLeft - downScroll) > 8) return;
     var el = document.elementFromPoint(e.clientX, e.clientY);
-    if (el && el.tagName === 'IMG' && strip.contains(el)) open(el);
+    if (el && (el.tagName === 'IMG' || el.tagName === 'VIDEO') && strip.contains(el)) open(el);
   });
 
   overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
@@ -428,5 +447,43 @@ if (year) year.textContent = String(new Date().getFullYear());
       });
     }, { root: list, threshold: 0.75 });
     items.forEach(function (it) { io.observe(it); });
+  });
+})();
+
+/* Product videos: autoplay muted, but only while on screen and only when the
+   visitor hasn't asked for reduced motion. preload="none" keeps the clip off
+   the initial load until its card scrolls into view; leaving the view pauses. */
+(function () {
+  var vids = Array.prototype.slice.call(document.querySelectorAll('.work-plate--video video'));
+  if (!vids.length) return;
+
+  function play(v) { if (!reduceMotion()) v.play().catch(function () {}); }
+
+  if (!('IntersectionObserver' in window)) {
+    vids.forEach(play);
+    return;
+  }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting) play(en.target);
+      else en.target.pause();
+    });
+  }, { rootMargin: '200px 0px', threshold: 0.2 });
+  vids.forEach(function (v) { io.observe(v); });
+})();
+
+/* Collage video tiles are GIF-style loops: muted, autoplaying, looping, no
+   controls. Autoplay ships in the markup; this only enforces reduced motion
+   (hard-pause at frame zero) and nudges any tile the browser suspended. */
+(function () {
+  var vids = Array.prototype.slice.call(document.querySelectorAll('.collage video'));
+  if (!vids.length) return;
+  if (reduceMotion()) {
+    vids.forEach(function (v) { v.removeAttribute('autoplay'); v.pause(); });
+    return;
+  }
+  vids.forEach(function (v) {
+    var p = v.play();
+    if (p && p.catch) p.catch(function () {});
   });
 })();

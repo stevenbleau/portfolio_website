@@ -20,17 +20,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=18">
-  <script src="js/main.js?v=14" defer></script>
+  <link rel="stylesheet" href="css/style.css?v=20">
+  <script src="js/main.js?v=16" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
   <main id="main">
     <section class="hero-collage" id="work" aria-label="Work gallery">
-      <!-- All 19 project shots (assets/collage/01-19.webp): 01-11 from the live
-           stevenbleau.design grid, 12-19 from the Portfolio Gallery set.
-           Column-flow grid, so every 3 images below are one column. Order is
+      <!-- Project shots (assets/collage/01-22): 01-11 from the live
+           stevenbleau.design grid, 12-19 from the Portfolio Gallery set, and
+           20 (robot render, photo) plus the 21/22 muted autoplay loops (video
+           GIFs — 21 depth-sense, 22 dotte motion) placed in the first
+           columns so the loops play on load and read beside the sketches.
+           Column-flow grid, so every 3 tiles below are one column. Order is
            solved, not arbitrary: the 8 renders/photos are spaced evenly through
            the 11 sketches (6-8 renders in any 15 visible tiles), each image
            recurs only every 6-7 columns so no duplicate is ever on screen, and
@@ -40,6 +43,11 @@
         <img src="assets/collage/14.webp" width="300" height="200" alt="">
         <img src="assets/collage/17.webp" width="300" height="200" alt="">
         <img src="assets/collage/03.webp" width="300" height="200" alt="">
+        <video src="assets/collage/22.mp4" width="300" height="200" muted loop playsinline autoplay
+               preload="metadata" disablepictureinpicture tabindex="-1" aria-hidden="true"></video>
+        <video src="assets/collage/21.mp4" width="300" height="200" muted loop playsinline autoplay
+               preload="metadata" disablepictureinpicture tabindex="-1" aria-hidden="true"></video>
+        <img src="assets/collage/20.webp" width="300" height="200" alt="">
         <img src="assets/collage/13.webp" width="300" height="200" alt="">
         <img src="assets/collage/09.webp" width="300" height="200" alt="">
         <img src="assets/collage/07.webp" width="300" height="200" alt="">
@@ -117,17 +125,22 @@
       <section id="currently" aria-labelledby="currently-title">
         <p class="eyebrow">.01 &middot; Currently</p>
         <h2 id="currently-title">What I&rsquo;m up to</h2>
-        <p class="lede">Most of what I build is unreleased and under NDA &mdash; so the gallery up top shows the craft, and the detail lives in interviews.</p>
         <ul class="work-list work-list--h" data-hsnap>
           <li>
             <div class="work-entry">
-              <span class="work-plate work-plate--text"><span class="plate-mark">Telo Design</span></span>
+              <span class="work-plate work-plate--video">
+                <video muted loop playsinline preload="none" disablepictureinpicture
+                       aria-label="The Y-Cane by Telo: an ergonomic Y-shaped walking cane, shown in use.">
+                  <source src="assets/video/ycane.mp4" type="video/mp4">
+                </video>
+                <img class="work-plate-logo" src="assets/ui/logo-telo.svg" width="262" height="50"
+                     loading="lazy" alt="Telo">
+              </span>
               <span class="work-entry-body">
                 <span class="work-index">Founder &middot; Product development &amp; R&amp;D</span>
                 <h3><span class="block">Telo Design</span></h3>
-                <span class="work-snapshot">I run Telo as a startup, taking our own products from research and CAD through to production. The Y-Cane in the gallery is the one that&rsquo;s public; most of the pipeline is pre-launch.</span>
-                <!-- TODO: confirm Telo site URL -->
-                <a class="work-link" href="https://telo.design">Visit Telo &rarr;</a>
+                <span class="work-snapshot">I run Telo as a startup, taking our own products from research and CAD through to production. The Y-Cane above is the one that&rsquo;s public; most of the pipeline is pre-launch.</span>
+                <a class="work-link" href="https://telodesign.com" target="_blank" rel="noopener">Visit Telo &rarr;</a>
               </span>
             </div>
           </li>

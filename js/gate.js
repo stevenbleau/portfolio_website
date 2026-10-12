@@ -1,3 +1,4 @@
+
 /* Password gate for NDA'd case studies. Only loaded on gated pages.
 
    The page ships ciphertext in [data-enc]; the password derives the key in the
