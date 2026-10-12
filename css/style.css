@@ -242,8 +242,8 @@ a.wordmark:hover span { text-decoration-thickness: 2px; }
   /* Shift the widget toward the edge so the logo's CENTER sits on the same
      line as the 14px dots' center (inset-end + half the logo width = gutter
      + half a dot). The expanded wordmark box simply extends leftward. */
-  inset-inline-end: calc(var(--gutter) - var(--brand-logo-w) / 2 + 7px);
-  inset-block-end: var(--gutter);
+  inset-inline-end: calc(var(--gutter) - var(--brand-logo-w) / 2 + 15px);
+  inset-block-end: calc(var(--gutter) + 0.75rem);
   z-index: 7;
   display: inline-flex;
   align-items: center;
