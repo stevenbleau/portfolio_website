@@ -731,41 +731,39 @@ html.modal-open { overflow: hidden; }
 
 .hero-type .typed-line { pointer-events: auto; }
 
-/* Minimize affordance: corner brackets at the block's first and last corners
-   mark the intro text as dismissable, the caret chip collapses it (same fade
-   a first swipe gives). No word, just marks. Brackets use a fixed dark ink so
-   they read over the light collage tiles in either color scheme. */
+/* Minimize affordance: bold dark corner brackets frame the intro block, and a
+   square button in the same bracket language (inward arrows glyph) sits at the
+   end of the last line, tucked into the bottom-right corner. No chips. */
 .typed { position: relative; }
 
-.typed-last { display: flex; align-items: center; gap: 0.4em; }
+.typed-last { display: flex; align-items: center; gap: 0.5em; }
 
 .typed::before,
 .typed::after {
-  content: ""; position: absolute; width: 12px; height: 12px; opacity: 0.8; pointer-events: none; color: rgba(0, 0, 0, 0.75); }
+  content: ""; position: absolute; width: 14px; height: 14px; opacity: 1; pointer-events: none; color: rgba(0, 0, 0, 0.9); }
 
-.typed::before { top: -0.4em; left: -0.3em; border-top: 2px solid; border-left: 2px solid; }
-.typed::after { bottom: -0.2em; right: -0.3em; border-bottom: 2px solid; border-right: 2px solid; }
+.typed::before { top: -0.4em; left: -0.3em; border-top: 3px solid; border-left: 3px solid; }
+.typed::after { bottom: -0.2em; right: -0.3em; border-bottom: 3px solid; border-right: 3px solid; }
 
 .typed-min {
   display: inline-flex;
   align-items: center;
-  background: var(--block);
-  color: var(--block-fg);
-  border: none;
+  justify-content: center;
+  aspect-ratio: 1;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.9);
+  border: 3px solid rgba(0, 0, 0, 0.9);
   font: inherit;
-  font-size: 0.5em;
+  font-size: 0.45em;
   line-height: 1;
-  padding: 0.12em 0.45em;
+  padding: 0.1em 0.25em;
   cursor: pointer;
   pointer-events: auto;
 }
 
-.typed-min:hover,
-.typed-min:focus-visible {
-  color: var(--gold);
-  outline: none;
-  box-shadow: inset 0 0 0 2px var(--gold);
-}
+.typed-min:hover { box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.9); }
+
+.typed-min:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--gold); color: var(--gold); }
 
 .typed {
   font-size: calc(var(--tile-w) * 0.1867); /* 56px at the reference's 300px tile */
