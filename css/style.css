@@ -784,7 +784,7 @@ a.typed-line:focus-visible {
      scale transform still applies on top), horizontally centered; the container
      hug-shrinks so lines stay left-aligned inside it, like desktop. */
   .hero-type { inset-block-start: 50%; inset-inline: var(--gutter); translate: 0 -50%; }
-  .typed { font-size: clamp(2.11rem, 10.9vw, 4.3rem); width: max-content; max-width: 100%; margin-inline: auto; }
+  .typed { font-size: clamp(1.7rem, 8vw, 2.6rem); width: max-content; max-width: 100%; margin-inline: auto; }
   .typed-line { margin-inline: 0; }
   .brand-float { margin-inline-end: 0.75rem; }
 }
