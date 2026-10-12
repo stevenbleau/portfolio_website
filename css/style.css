@@ -725,7 +725,7 @@ html.modal-open { overflow: hidden; }
 .hero-type .typed-line { pointer-events: auto; }
 
 .typed {
-  font-size: calc(var(--tile-w) * 0.2918); /* 87px at the reference's 300px tile */
+  font-size: calc(var(--tile-w) * 0.1867); /* 56px at the reference's 300px tile */
   line-height: 1.4;
   color: var(--block-fg);
 }
