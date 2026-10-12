@@ -179,7 +179,15 @@ if (year) year.textContent = String(new Date().getFullYear());
   }
   window.addEventListener('scroll', restoreOnReturn, { passive: true });
 
-  if (brand) brand.addEventListener('click', reshown);
+  if (brand) {
+    /* On touch there's no hover-out, so focus keeps the wordmark expanded after
+       a tap until something else is clicked. Blur the link on activation: the
+       next drag/scroll re-condenses it via .is-condensed. */
+    brand.addEventListener('click', function () {
+      reshown();
+      brand.blur();
+    });
+  }
 
   function frame(ts) {
     var auto = !reduce && !dragging && ts > pausedUntil;
