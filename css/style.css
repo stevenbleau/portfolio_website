@@ -294,9 +294,10 @@ a.wordmark:hover span { text-decoration-thickness: 2px; }
 }
 
 /* Over the hero collage the widget sits on top of the browsing dots. */
-@media (max-width: 52rem) {
-  /* App-icon sized mark on phones: easier thumb-target, still edge-tucked. */
-  .brand-float { --brand-logo-w: 3.25rem; }
+@media (max-width: 75rem) {
+  /* App-icon sized mark on phones and tablets: easier thumb-target, still
+     edge-tucked, with a little air from the viewport edge. */
+  .brand-float { --brand-logo-w: 3.25rem; margin-inline-end: 0.75rem; }
 }
 
 .site-nav ul {
@@ -797,7 +798,6 @@ a.typed-line:focus-visible {
   .hero-type { inset-inline: var(--gutter); }
   .typed { font-size: clamp(1.7rem, 8vw, 2.6rem); width: max-content; max-width: 100%; margin-inline: auto; }
   .typed-line { margin-inline: 0; }
-  .brand-float { margin-inline-end: 0.75rem; }
 }
 
 /* Keep the fixed dot column and the enlarged brand mark over whitespace in the
