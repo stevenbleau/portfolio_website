@@ -733,26 +733,29 @@ html.modal-open { overflow: hidden; }
 
 /* Minimize affordance: corner brackets at the block's first and last corners
    mark the intro text as dismissable, the caret chip collapses it (same fade
-   a first swipe gives). No word, just marks. */
+   a first swipe gives). No word, just marks. Brackets use a fixed dark ink so
+   they read over the light collage tiles in either color scheme. */
 .typed { position: relative; }
+
+.typed-last { display: flex; align-items: center; gap: 0.4em; }
 
 .typed::before,
 .typed::after {
-  content: ""; position: absolute; width: 12px; height: 12px; opacity: 0.8; pointer-events: none; border-color: currentColor; }
+  content: ""; position: absolute; width: 12px; height: 12px; opacity: 0.8; pointer-events: none; color: rgba(0, 0, 0, 0.75); }
 
 .typed::before { top: -0.4em; left: -0.3em; border-top: 2px solid; border-left: 2px solid; }
 .typed::after { bottom: -0.2em; right: -0.3em; border-bottom: 2px solid; border-right: 2px solid; }
 
 .typed-min {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   background: var(--block);
   color: var(--block-fg);
   border: none;
   font: inherit;
   font-size: 0.5em;
   line-height: 1;
-  padding: 0.12em 0.5em;
-  margin-block-start: 0.3em;
+  padding: 0.12em 0.45em;
   cursor: pointer;
   pointer-events: auto;
 }
