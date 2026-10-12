@@ -152,14 +152,34 @@ if (year) year.textContent = String(new Date().getFullYear());
 
   var hero = strip.closest('.hero-collage');
   var brand = document.querySelector('.brand-float');
-  /* One-shot: the first swipe/drag fades the hero type away and condenses
-     the floating brand to just the logo, both for the life of the page —
-     no timer restores them. */
+  /* Swipe/drag fades the hero type away and condenses the floating brand to
+     just the logo. The dismissal holds while the visitor is in the gallery
+     section; once they scroll past it and come back, the type is restored
+     (until they swipe it away again). Clicking the floating brand restores it
+     in place even when already at the top. */
   function browsing() {
     if (!hero) return;
     hero.classList.add('browsing');
     if (brand) brand.classList.add('is-condensed');
   }
+
+  function reshown() {
+    if (hero) hero.classList.remove('browsing');
+  }
+
+  var away = false;
+  function restoreOnReturn() {
+    if (!hero) return;
+    var threshold = hero.offsetHeight * 0.65;
+    if (window.scrollY > threshold) away = true;
+    else if (away) {
+      away = false;
+      reshown();
+    }
+  }
+  window.addEventListener('scroll', restoreOnReturn, { passive: true });
+
+  if (brand) brand.addEventListener('click', reshown);
 
   function frame(ts) {
     var auto = !reduce && !dragging && ts > pausedUntil;
