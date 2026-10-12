@@ -189,6 +189,14 @@ if (year) year.textContent = String(new Date().getFullYear());
     });
   }
 
+  var minBtn = document.querySelector('.typed-min');
+  if (minBtn) {
+    minBtn.addEventListener('click', function () {
+      browsing();
+      minBtn.blur();
+    });
+  }
+
   function frame(ts) {
     var auto = !reduce && !dragging && ts > pausedUntil;
     if (auto && last !== null) {

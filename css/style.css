@@ -731,6 +731,28 @@ html.modal-open { overflow: hidden; }
 
 .hero-type .typed-line { pointer-events: auto; }
 
+/* Minimize control: same dismissal a first swipe gives, but explicit. */
+.typed-min {
+  display: block;
+  width: fit-content;
+  background: var(--block);
+  color: var(--block-fg);
+  border: none;
+  font: inherit;
+  font-size: 0.6em;
+  padding: 0.15em 0.6em;
+  margin-block-start: var(--s1);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.typed-min:hover,
+.typed-min:focus-visible {
+  color: var(--gold);
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--gold);
+}
+
 .typed {
   font-size: calc(var(--tile-w) * 0.1867); /* 56px at the reference's 300px tile */
   line-height: 1.4;
