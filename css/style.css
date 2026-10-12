@@ -780,10 +780,13 @@ a.typed-line:focus-visible {
   /* Smaller tiles so the collage reads as a grid (two+ across) instead of one
      huge photo per row on a phone; all hero ratios derive from --tile-w. */
   .hero-collage { --tile-w: clamp(168px, 44vw, 320px); }
-  .hero-type { inset-inline: var(--gutter); }
-  .typed { font-size: clamp(1.15rem, 6vw, 2.5rem); }
-  /* Each black line box is fit-content, so auto margins center the stack. */
-  .typed-line { margin-inline: auto; }
+  /* Box vertically centered in the hero (translate property, so the browsing
+     scale transform still applies on top), horizontally centered; the container
+     hug-shrinks so lines stay left-aligned inside it, like desktop. */
+  .hero-type { inset-block-start: 50%; inset-inline: var(--gutter); translate: 0 -50%; }
+  .typed { font-size: clamp(1.35rem, 7vw, 2.75rem); width: max-content; max-width: 100%; margin-inline: auto; }
+  .typed-line { margin-inline: 0; }
+  .brand-float { margin-inline-end: 0.75rem; }
 }
 
 /* Keep the fixed dot column and the enlarged brand mark over whitespace in the
@@ -794,7 +797,7 @@ a.typed-line:focus-visible {
 }
 
 @media (max-width: 26rem) {
-  .typed { font-size: clamp(1rem, 5.4vw, 1.6rem); }
+  .typed { font-size: clamp(1.15rem, 5.8vw, 1.8rem); }
 }
 
 /* ---- Buttons: black blocks, gold on hover (live-site language) ---- */
