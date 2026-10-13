@@ -8,14 +8,12 @@ var year = document.querySelector('[data-year]');
 if (year) year.textContent = String(new Date().getFullYear());
 
 /* Typewriter hero. Lines exist statically in the markup (works JS-off);
-   this empties them and retypes, matching stevenbleau.design's landing. */
+   this empties them and retypes, matching stevenbleau.design's landing.
+   Runs regardless of prefers-reduced-motion: it's a short text reveal, not
+   parallax or large-area motion, so it stays on for phones in Reduce Motion. */
 (function () {
   var container = document.getElementById('typed-container');
   if (!container) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    container.classList.add('typed-done');
-    return;
-  }
 
   var lines = Array.prototype.slice.call(container.querySelectorAll('.typed-line'));
   if (!lines.length) return;
