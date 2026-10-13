@@ -600,8 +600,9 @@ if (year) year.textContent = String(new Date().getFullYear());
 })();
 
 /* Product videos: autoplay muted, but only while on screen and only when the
-   visitor hasn't asked for reduced motion. preload="none" keeps the clip off
-   the initial load until its card scrolls into view; leaving the view pauses. */
+   visitor hasn't asked for reduced motion. preload="metadata" ships the first
+   frame so iOS paints a poster immediately instead of a black box; playback
+   is still deferred until the card scrolls into view. */
 (function () {
   var vids = Array.prototype.slice.call(document.querySelectorAll('.work-plate--video video'));
   if (!vids.length) return;

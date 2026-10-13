@@ -134,11 +134,10 @@ interviews. All four public case/gated pages were moved to `work/_archive/` and 
 from the sitemap.
 
 - `header/nav` — logo mark + wordmark; links: Work (`#work`, the collage), Experience (`#previously`), Education (`#education`), About (`#about`), Contact (`#contact`). No hamburger — 5 uppercase links fit, tighter `--s2` gap below 52rem.
-- Hero — full-bleed collage gallery (sketches/renders/apps in one burst) + typed black-block lines. No video, no parallax.
+- Hero — full-bleed collage gallery (sketches/renders/apps in one burst) + typed black-block lines ending in two links: Check out my work (`#currently`) and Get to know me (`#about`). No video, no parallax.
 - Currently (`.01`, `#currently`) — 2 entries: **Telo Design** (founder, startup + R&D; links to live Telo site) and **Creation and Innovation Hubs** (University of Minnesota, `.work-gallery` photo strip: hero + 01-problem + 02-process). No case-study links.
-- Previously (`.02`, `#previously`) — 3 cards: RedGroup (dark logo plate), Medtronic (logo plate), Studio 04 (transportation design, text plate). 2–3 sentence write-ups; role/dates as `[TODO]`. No links.
-- Education (`.03`, `#education`) — 3-step timeline (`.edu`): B.S. Product Design → full-stack bootcamp → M.S. Robotics, closing line on the full-stack design-engineer throughline.
-- About (`.03`, `#about`) — one `.work-list--h` snap row of two cards: portrait + blurb card, then the education card (`.edu` steps + closing note, `#education` inside it) sitting right of the portrait card; swipe sideways between them instead of stacking sections vertically (no standalone about page; old one parked in `work/_archive/about-page/`).
+- About (`.02`, `#about`) — one `.work-list--h` snap row of two cards: portrait + blurb card, then the education card (`.edu` steps + closing note, `#education` inside it) sitting right of the portrait card; swipe sideways between them instead of stacking sections vertically (no standalone about page; old one parked in `work/_archive/about-page/`).
+- Previously (`.03`, `#previously`) — 3 cards: RedGroup (dark logo plate), Medtronic (logo plate), Studio 04 (transportation design, text plate). 2–3 sentence write-ups; role/dates as `[TODO]`. No links.
 - Contact footer — `mailto:`, LinkedIn, resume link (PDF in `assets/ui/`).
 - `prefers-reduced-motion` respected globally: no smooth-scroll, no transitions.
 

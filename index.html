@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600&display=swap">
   <link rel="stylesheet" href="css/style.css?v=44">
-  <script src="js/main.js?v=24" defer></script>
+  <script src="js/main.js?v=25" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -108,16 +108,15 @@
         <div class="typed" id="typed-container">
           <span class="typed-line" aria-hidden="true">Hi.</span>
           <span class="typed-line" aria-hidden="true">I&rsquo;m Steven.</span>
-          <a class="typed-line" href="#currently">See what I&rsquo;m up to</a>
-          <a class="typed-line" href="#previously">See where I&rsquo;ve been</a>
+          <a class="typed-line" href="#currently">Check out my work</a>
           <span class="typed-last"><a class="typed-line cursor" href="#about">Get to know me</a><button class="typed-min" type="button" aria-label="Minimize the intro text"><svg viewBox="0 0 14 14" aria-hidden="true"><g stroke="currentColor" stroke-width="3" fill="none"><path d="M5.4 2.3V5.3H2.4"/><path d="M8.9 11.8V8.9h2.9"/></g></svg></button></span>
         </div>
       </div>
       <nav class="dot-nav" aria-label="Jump to section">
         <a href="#work" title="Work gallery" aria-label="Work gallery" class="is-active" aria-current="true"></a>
         <a href="#currently" title="What I&rsquo;m up to" aria-label="What I&rsquo;m up to"></a>
-        <a href="#previously" title="Where I&rsquo;ve been" aria-label="Where I&rsquo;ve been"></a>
         <a href="#about" title="About me" aria-label="About me"></a>
+        <a href="#previously" title="Where I&rsquo;ve been" aria-label="Where I&rsquo;ve been"></a>
       </nav>
     </section>
 
@@ -129,7 +128,7 @@
           <li>
             <div class="work-entry">
               <span class="work-plate work-plate--video">
-                <video muted loop playsinline preload="none" disablepictureinpicture
+                <video muted loop playsinline preload="metadata" disablepictureinpicture
                        aria-label="The Y-Cane by Telo: an ergonomic Y-shaped walking cane, shown in use.">
                   <source src="assets/video/ycane.mp4" type="video/mp4">
                 </video>
@@ -164,8 +163,54 @@
         </ul>
       </section>
 
+      <section id="about" aria-labelledby="about-title">
+        <p class="eyebrow">.02 &middot; About</p>
+        <h2 id="about-title">About me</h2>
+        <ul class="work-list work-list--h" data-hsnap>
+          <li>
+            <div class="work-entry">
+              <img src="assets/ui/headshot.webp" width="401" height="401" loading="lazy"
+                   alt="Portrait of Steven Bleau">
+              <div class="work-entry-body">
+                <span class="work-index">Steven Bleau &middot; Full-stack product design</span>
+                <p class="work-snapshot">I take digital and physical products from research to launch, and I can build the parts I design. I founded Telo Design and led product development there, shipping my own products end to end.</p>
+                <p class="work-snapshot">I've worked with Fortune 500 companies, consultancies, startups, and non-profits, across industries from transportation to medtech. A B.S. in Product Design, a full-stack development certification, and an M.S. in Robotics keep me useful on both sides of the hardware/software line.</p>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="work-entry">
+              <div class="work-entry-body">
+                <span class="work-index">Education &middot; How I got to full stack</span>
+                <ol class="edu" id="education">
+                  <li class="edu-item">
+                    <p class="edu-step">Step 01</p>
+                    <h3>B.S. Product Design</h3>
+                    <p class="meta">University of Minnesota</p>
+                    <p>Research, drawing, CAD, prototyping, manufacturing, the physical craft, formalized.</p>
+                  </li>
+                  <li class="edu-item">
+                    <p class="edu-step">Step 02</p>
+                    <h3>Full-Stack Web Development</h3>
+                    <p class="meta">Bootcamp certification</p>
+                    <p>Front end to back end, so a product doesn&rsquo;t stop at the enclosure.</p>
+                  </li>
+                  <li class="edu-item">
+                    <p class="edu-step">Step 03</p>
+                    <h3>M.S. Robotics</h3>
+                    <p class="meta">University of Minnesota</p>
+                    <p>Mechatronics, controls, machine learning, where hardware and software meet.</p>
+                  </li>
+                </ol>
+                <p class="edu-note">Design school, then code, then robotics. That stack is the point: one person who can take a product from research to launch, and build the parts they design.</p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
       <section id="previously" aria-labelledby="previously-title">
-        <p class="eyebrow">.02 &middot; Previously</p>
+        <p class="eyebrow">.03 &middot; Previously</p>
         <h2 id="previously-title">Where I&rsquo;ve been</h2>
         <p class="lede">Fortune 500 medtech, an Amphenol brand, and a transportation design studio. The work is under NDA; the scope is not.</p>
         <ul class="work-list work-list--h" data-hsnap>
@@ -206,52 +251,6 @@
                 <h3><span class="block">Studio 04</span></h3>
                 <span class="work-snapshot">Transportation design studio, end-to-end industrial design for global automotive companies. The talent has since moved to design leadership at Caterpillar, Inc.</span>
               </span>
-            </div>
-          </li>
-        </ul>
-      </section>
-
-      <section id="about" aria-labelledby="about-title">
-        <p class="eyebrow">.03 &middot; About</p>
-        <h2 id="about-title">About me</h2>
-        <ul class="work-list work-list--h" data-hsnap>
-          <li>
-            <div class="work-entry">
-              <img src="assets/ui/headshot.webp" width="401" height="401" loading="lazy"
-                   alt="Portrait of Steven Bleau">
-              <div class="work-entry-body">
-                <span class="work-index">Steven Bleau &middot; Full-stack product design</span>
-                <p class="work-snapshot">I take digital and physical products from research to launch, and I can build the parts I design. I founded Telo Design and led product development there, shipping my own products end to end.</p>
-                <p class="work-snapshot">I've worked with Fortune 500 companies, consultancies, startups, and non-profits, across industries from transportation to medtech. A B.S. in Product Design, a full-stack development certification, and an M.S. in Robotics keep me useful on both sides of the hardware/software line.</p>
-              </div>
-            </div>
-          </li>
-          <li>
-            <div class="work-entry">
-              <div class="work-entry-body">
-                <span class="work-index">Education &middot; How I got to full stack</span>
-                <ol class="edu" id="education">
-                  <li class="edu-item">
-                    <p class="edu-step">Step 01</p>
-                    <h3>B.S. Product Design</h3>
-                    <p class="meta">University of Minnesota</p>
-                    <p>Research, drawing, CAD, prototyping, manufacturing, the physical craft, formalized.</p>
-                  </li>
-                  <li class="edu-item">
-                    <p class="edu-step">Step 02</p>
-                    <h3>Full-Stack Web Development</h3>
-                    <p class="meta">Bootcamp certification</p>
-                    <p>Front end to back end, so a product doesn&rsquo;t stop at the enclosure.</p>
-                  </li>
-                  <li class="edu-item">
-                    <p class="edu-step">Step 03</p>
-                    <h3>M.S. Robotics</h3>
-                    <p class="meta">University of Minnesota</p>
-                    <p>Mechatronics, controls, machine learning, where hardware and software meet.</p>
-                  </li>
-                </ol>
-                <p class="edu-note">Design school, then code, then robotics. That stack is the point: one person who can take a product from research to launch, and build the parts they design.</p>
-              </div>
             </div>
           </li>
         </ul>
