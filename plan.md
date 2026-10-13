@@ -135,7 +135,7 @@ from the sitemap.
 
 - `header/nav` — logo mark + wordmark; links: Work (`#work`, the collage), Experience (`#previously`), Education (`#education`), About (`#about`), Contact (`#contact`). No hamburger — 5 uppercase links fit, tighter `--s2` gap below 52rem.
 - Hero — full-bleed collage gallery (sketches/renders/apps in one burst) + typed black-block lines. No video, no parallax.
-- Currently (`.01`, `#currently`) — 2 entries: **Telo Design** (founder, startup + R&D; links to live Telo site) and **Design Curriculum & Programs** (University of Minnesota). Text plates (`work-plate--text`); no case-study links.
+- Currently (`.01`, `#currently`) — 2 entries: **Telo Design** (founder, startup + R&D; links to live Telo site) and **Design Curriculum & Programs** (University of Minnesota, `.work-gallery` photo strip: hero + 01-problem + 02-process). No case-study links.
 - Previously (`.02`, `#previously`) — 3 cards: RedGroup (dark logo plate), Medtronic (logo plate), Studio 04 (transportation design, text plate). 2–3 sentence write-ups; role/dates as `[TODO]`. No links.
 - Education (`.03`, `#education`) — 3-step timeline (`.edu`): B.S. Product Design → full-stack bootcamp → M.S. Robotics, closing line on the full-stack design-engineer throughline.
 - About — condensed bio + headshot, inline at `#about` (no standalone page; the old one is parked in `work/_archive/about-page/`).

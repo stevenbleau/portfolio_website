@@ -35,9 +35,8 @@
 - What I'd change:
 
 ## Images to supply → assets/work/makerspaces-program/
-- [ ] hero.webp (real workshop photo — replaces current screenshot)
-- [ ] 01-curriculum.webp (syllabus/arc diagram or artifact)
-- [ ] 02-builds.webp (student work in progress)
-- [ ] 03-capstone.webp (final projects)
+- [x] hero.webp (workshop photo, 1600px wide, from _source/_DSC9743.JPG)
+- [x] 01-problem.webp (cohort learners at workbenches, from 240930_awc_impact-report_0047-copy.jpg)
+- [x] 02-process.webp (finished builds, from 240930_awc_impact-report_0152-copy.jpg)
 - Export rule: originals → WebP, max 1600px wide, <100KB each, keep filenames as above.
 - Check: any minors in photos? Get consent or crop/select images without faces.

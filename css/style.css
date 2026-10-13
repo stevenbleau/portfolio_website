@@ -444,6 +444,7 @@ main .wrap > section {
 }
 @media (min-width: 52rem) and (max-width: 74.99rem) {
   .work-list--h .work-entry > img,
+  .work-list--h .work-entry .work-gallery,
   .work-list--h .work-entry .work-plate { aspect-ratio: auto; height: min(44dvh, 420px); }
   .work-list--h .work-entry .work-plate--video { aspect-ratio: auto; }
 }
@@ -464,6 +465,7 @@ main .wrap > section {
      box shrink its width to height x 3/2 when capped, leaving the plate a
      narrow island instead of the full card width. */
   #currently .work-plate { aspect-ratio: auto; height: min(46dvh, calc(100dvh - 470px)); }
+  #currently .work-gallery { aspect-ratio: auto; height: min(46dvh, calc(100dvh - 470px)); }
   #currently .work-snapshot { max-width: 72ch; }
 }
 
@@ -922,6 +924,28 @@ a.typed-line:focus-visible {
   object-fit: cover;
 }
 
+/* Photo strip for entries with imagery: three equal tiles inside one cover box,
+   the same footprint as the logo/video plates; tiles cover-crop to fill. The
+   box is the definite height (aspect-ratio or a capped height), tiles fill it
+   exactly — overflow hidden keeps a stretched tile from spilling into the
+   entry text below. */
+.work-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s2);
+  margin: 0;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+}
+
+.work-gallery img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+}
+
 /* Logo plate: stands in for a cover image on gated entries. */
 .work-plate {
   display: grid;
@@ -1139,6 +1163,8 @@ a.typed-line:focus-visible {
   width: 100%;
   border: 1px solid var(--line);
 }
+
+.case figure img + img { margin-block-start: var(--s3); }
 
 /* Portrait product shots: cap the height so a tall render doesn't push the
    article off-screen, and centre it in the text column. */
