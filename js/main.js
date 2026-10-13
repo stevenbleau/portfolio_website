@@ -252,7 +252,9 @@ if (year) year.textContent = String(new Date().getFullYear());
   document.documentElement.addEventListener('pointerleave', function () { px = py = null; });
 
   function frame(ts) {
-    var auto = !reduce && !dragging && ts > pausedUntil;
+    /* Auto-scroll always runs: a slow 18px/s drift is gentle enough to stay on
+       under reduced-motion phone settings; drag and pointer still pause it. */
+    var auto = !dragging && ts > pausedUntil;
     if (auto && last !== null) {
       pos += SPEED * Math.min(ts - last, 100) / 1000;
       strip.scrollLeft = pos;
@@ -442,7 +444,7 @@ if (year) year.textContent = String(new Date().getFullYear());
       bigVid.hidden = false;
       bigVid.src = src;
       bigVid.currentTime = 0;
-      if (!reduceMotion()) bigVid.play().catch(function () {});
+      bigVid.play().catch(function () {});
     } else {
       bigVid.pause();
       bigVid.hidden = true;
@@ -597,15 +599,15 @@ if (year) year.textContent = String(new Date().getFullYear());
   }
 })();
 
-/* Product videos: autoplay muted, but only while on screen and only when the
-   visitor hasn't asked for reduced motion. preload="metadata" ships the first
-   frame so iOS paints a poster immediately instead of a black box; playback
-   is still deferred until the card scrolls into view. */
+/* Product videos: autoplay muted while on screen. Always plays (small muted
+   clips are low-distraction); preload="metadata" ships the first frame so iOS
+   paints a poster immediately instead of a black box, playback deferred until
+   the card scrolls into view. */
 (function () {
   var vids = Array.prototype.slice.call(document.querySelectorAll('.work-plate--video video'));
   if (!vids.length) return;
 
-  function play(v) { if (!reduceMotion()) v.play().catch(function () {}); }
+  function play(v) { v.play().catch(function () {}); }
 
   if (!('IntersectionObserver' in window)) {
     vids.forEach(play);
@@ -621,15 +623,11 @@ if (year) year.textContent = String(new Date().getFullYear());
 })();
 
 /* Collage video tiles are GIF-style loops: muted, autoplaying, looping, no
-   controls. Autoplay ships in the markup; this only enforces reduced motion
-   (hard-pause at frame zero) and nudges any tile the browser suspended. */
+   controls. Autoplay ships in the markup; this nudges any tile the browser
+   suspended after the defer/load race. */
 (function () {
   var vids = Array.prototype.slice.call(document.querySelectorAll('.collage video'));
   if (!vids.length) return;
-  if (reduceMotion()) {
-    vids.forEach(function (v) { v.removeAttribute('autoplay'); v.pause(); });
-    return;
-  }
   vids.forEach(function (v) {
     var p = v.play();
     if (p && p.catch) p.catch(function () {});

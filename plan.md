@@ -139,7 +139,7 @@ from the sitemap.
 - About (`.02`, `#about`) — one `.work-list--h` snap row of two cards: portrait + blurb card, then the education card (`.edu` steps + closing note, `#education` inside it) sitting right of the portrait card; swipe sideways between them instead of stacking sections vertically (no standalone about page; old one parked in `work/_archive/about-page/`).
 - Previously (`.03`, `#previously`) — 3 cards: RedGroup (dark logo plate), Medtronic (logo plate), Studio 04 (transportation design, text plate). 2–3 sentence write-ups; role/dates as `[TODO]`. No links.
 - Contact footer — `mailto:`, LinkedIn, resume link (PDF in `assets/ui/`).
-- `prefers-reduced-motion` respected globally: no smooth-scroll, no transitions.
+- `prefers-reduced-motion` gates the heavier motion (smooth scroll, cursor gravity); low-distraction items stay always-on so phones in Reduce Motion still show life: hero typewriter, slow collage auto-scroll, muted looping clips and the Telo plate video.
 
 ## 7. CSS system
 
