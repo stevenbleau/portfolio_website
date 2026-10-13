@@ -164,6 +164,16 @@ if (year) year.textContent = String(new Date().getFullYear());
 
   var hero = strip.closest('.hero-collage');
   var brand = document.querySelector('.brand-float');
+  var nav = document.querySelector('.dot-nav');
+  /* The dot column and the hero intro share one job: guiding the visitor
+     through the page. While the intro is on screen in the gallery it is the
+     navigation, so the column stays hidden; minimizing the intro hands the job
+     over. Everywhere outside the gallery the column is always visible. */
+  function syncNav() {
+    if (!nav || !hero) return;
+    var inGallery = window.scrollY <= hero.offsetHeight * 0.65;
+    nav.hidden = inGallery && !hero.classList.contains('browsing');
+  }
   /* Swipe/drag fades the hero type away and condenses the floating brand to
      just the logo. The dismissal holds while the visitor is in the gallery
      section; once they scroll past it and come back, the type is restored
@@ -172,11 +182,14 @@ if (year) year.textContent = String(new Date().getFullYear());
   function browsing() {
     if (!hero) return;
     hero.classList.add('browsing');
+    syncNav();
     if (brand) brand.classList.add('is-condensed');
   }
 
   function reshown() {
-    if (hero) hero.classList.remove('browsing');
+    if (!hero) return;
+    hero.classList.remove('browsing');
+    syncNav();
   }
 
   var away = false;
@@ -188,8 +201,10 @@ if (year) year.textContent = String(new Date().getFullYear());
       away = false;
       reshown();
     }
+    syncNav();
   }
   window.addEventListener('scroll', restoreOnReturn, { passive: true });
+  syncNav();
 
   if (brand) {
     /* On touch there's no hover-out, so focus keeps the wordmark expanded after
@@ -201,20 +216,14 @@ if (year) year.textContent = String(new Date().getFullYear());
     });
   }
 
-  var minBtn = document.querySelector('.typed-min');
-  if (minBtn) {
-    minBtn.addEventListener('click', function () {
-      browsing();
-      minBtn.blur();
-    });
-  }
-
   /* Cursor gravity: tiles grow and lean toward the pointer, scaled by how
      close they are to it along the strip. Eased every frame; off under
      reduced motion and on touch (no hover). */
   var hoverCap = matchMedia('(hover: hover)').matches;
   var px = null, py = null;
   var scales = [];
+  var dotEls = Array.prototype.slice.call(document.querySelectorAll('.dot-nav a'));
+  var dotEased = [];
 
   function gravity() {
     var kids = strip.children;
@@ -245,6 +254,38 @@ if (year) year.textContent = String(new Date().getFullYear());
       var tx = fall ? Math.max(-12, Math.min(12, dx * 0.06 * fall)) : 0;
       var ty = fall ? Math.max(-12, Math.min(12, dy * 0.06 * fall)) : 0;
       inner.style.transform = 'translate(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px) scale(' + cur.toFixed(3) + ')';
+    }
+
+    /* Side dots: grow toward the pointer and open their label by proximity,
+       same easing family as the tiles. Text stays fully opaque throughout —
+       only the box width moves. */
+    for (var j = 0; j < dotEls.length; j++) {
+      var a = dotEls[j];
+      var ar = a.getBoundingClientRect();
+      var acx = ar.right - 7;
+      var acy = ar.top + ar.height / 2;
+      var afall = 0;
+      if (px !== null) {
+        var adx = acx - px, ady = acy - py;
+        afall = Math.max(0, 1 - Math.sqrt(adx * adx + ady * ady) / 180);
+        afall *= afall;
+      }
+      var acur = dotEased[j];
+      if (acur === undefined) acur = 0;
+      acur += (afall - acur) * 0.14;
+      dotEased[j] = acur;
+      a.style.transform = 'scale(' + (1 + acur * 0.5).toFixed(3) + ')';
+      var lbl = a.firstElementChild;
+      if (lbl) {
+        if (acur > 0.5) {
+          if (!lbl._full) lbl._full = Math.ceil(lbl.scrollWidth / (parseFloat(getComputedStyle(lbl).fontSize) || 12)) + 1.5;
+          lbl.style.maxWidth = lbl._full + 'em';
+          lbl.style.paddingInline = '0.5em';
+        } else {
+          lbl.style.maxWidth = '0';
+          lbl.style.paddingInline = '0';
+        }
+      }
     }
   }
 

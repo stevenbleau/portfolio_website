@@ -20,8 +20,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=44">
-  <script src="js/main.js?v=27" defer></script>
+  <link rel="stylesheet" href="css/style.css?v=59">
+  <script src="js/main.js?v=36" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -109,14 +109,15 @@
           <span class="typed-line" aria-hidden="true">Hi.</span>
           <span class="typed-line" aria-hidden="true">I&rsquo;m Steven.</span>
           <a class="typed-line" href="#currently">Check out my work</a>
-          <span class="typed-last"><a class="typed-line cursor" href="#about">Get to know me</a><button class="typed-min" type="button" aria-label="Minimize the intro text"><svg viewBox="0 0 14 14" aria-hidden="true"><g stroke="currentColor" stroke-width="3" fill="none"><path d="M5.4 2.3V5.3H2.4"/><path d="M8.9 11.8V8.9h2.9"/></g></svg></button></span>
+          <a class="typed-line" href="#about">Get to know me</a>
+          <a class="typed-line cursor" href="#contact">Get in touch</a>
         </div>
       </div>
       <nav class="dot-nav" aria-label="Jump to section">
-        <a href="#work" title="Work gallery" aria-label="Work gallery" class="is-active" aria-current="true"></a>
-        <a href="#currently" title="What I&rsquo;m up to" aria-label="What I&rsquo;m up to"></a>
-        <a href="#about" title="About me" aria-label="About me"></a>
-        <a href="#previously" title="Where I&rsquo;ve been" aria-label="Where I&rsquo;ve been"></a>
+        <a href="#work" aria-label="Gallery" class="is-active" aria-current="true"><span>Gallery</span></a>
+        <a href="#currently" aria-label="Work"><span>Work</span></a>
+        <a href="#about" aria-label="About"><span>About</span></a>
+        <a href="#contact" aria-label="Get in touch"><span>Contact</span></a>
       </nav>
     </section>
 
@@ -206,59 +207,43 @@
               </div>
             </div>
           </li>
-        </ul>
-      </section>
-
-      <section id="previously" aria-labelledby="previously-title">
-        <p class="eyebrow">.03 &middot; Previously</p>
-        <h2 id="previously-title">Where I&rsquo;ve been</h2>
-        <p class="lede">Fortune 500 medtech, an Amphenol brand, and a transportation design studio. The work is under NDA; the scope is not.</p>
-        <ul class="work-list work-list--h" data-hsnap>
-          <li>
+          <li id="previously">
             <div class="work-entry">
-              <span class="work-plate work-plate--dark">
-                <img src="assets/ui/logo-redgroup.webp" width="760" height="252" loading="lazy"
-                     alt="RedGroup, an Amphenol CMT brand">
-              </span>
-              <span class="work-entry-body">
-                <span class="work-index">Product development &middot; RedGroup</span>
-                <h3><span class="block">RedGroup</span></h3>
-                <span class="work-snapshot">Industrial and mechanical product development across medical and commercial device lines under the RedGroup umbrella (Amphenol CMT). <span class="todo">[TODO: confirm role, dates, and the scope that may be stated publicly.]</span></span>
-              </span>
-            </div>
-          </li>
-          <li>
-            <div class="work-entry">
-              <span class="work-plate">
-                <img src="assets/ui/logo-medtronic.webp" width="580" height="212" loading="lazy"
-                     alt="Medtronic">
-              </span>
-              <span class="work-entry-body">
-                <span class="work-index">Medical device &middot; Medtronic</span>
-                <h3><span class="block">Medtronic</span></h3>
-                <span class="work-snapshot">Medical device design work inside one of the world&rsquo;s largest medtech companies, the regulated, rigorous side of product development. <span class="todo">[TODO: confirm role, dates, and the scope that may be stated publicly.]</span></span>
-              </span>
-            </div>
-          </li>
-          <li>
-            <div class="work-entry">
-              <span class="work-plate">
-                <img src="assets/ui/studio04-logo.png" width="1200" height="300" loading="lazy"
-                     alt="Studio 04">
-              </span>
-              <span class="work-entry-body">
-                <span class="work-index">Transportation design &middot; Studio 04</span>
-                <h3><span class="block">Studio 04</span></h3>
-                <span class="work-snapshot">Transportation design studio, end-to-end industrial design for global automotive companies. The talent has since moved to design leadership at Caterpillar, Inc.</span>
-              </span>
+              <div class="work-entry-body">
+                <span class="work-index">Previously &middot; Where I&rsquo;ve been</span>
+                <ol class="edu">
+                  <li class="edu-item">
+                    <img class="logo-dark" src="assets/ui/logo-redgroup.webp" width="760" height="252" loading="lazy"
+                         alt="RedGroup, an Amphenol CMT brand">
+                    <h3>RedGroup</h3>
+                    <p class="meta">Product development</p>
+                    <p>Industrial and mechanical development across medical and commercial device lines. <span class="todo">[TODO: confirm role, dates, public scope.]</span></p>
+                  </li>
+                  <li class="edu-item">
+                    <img src="assets/ui/logo-medtronic.webp" width="580" height="212" loading="lazy"
+                         alt="Medtronic">
+                    <h3>Medtronic</h3>
+                    <p class="meta">Medical device</p>
+                    <p>Device design inside one of the world&rsquo;s largest medtech companies: the regulated side of product development. <span class="todo">[TODO: confirm role, dates, public scope.]</span></p>
+                  </li>
+                  <li class="edu-item">
+                    <img src="assets/ui/studio04-logo.png" width="1200" height="300" loading="lazy"
+                         alt="Studio 04">
+                    <h3>Studio 04</h3>
+                    <p class="meta">Transportation design</p>
+                    <p>End-to-end industrial design for global automotive companies.</p>
+                  </li>
+                </ol>
+              </div>
             </div>
           </li>
         </ul>
       </section>
 
       <section class="contact" id="contact" aria-labelledby="contact-title">
-        <h2 id="contact-title">Want to build something together?</h2>
+        <h2 id="contact-title">Get in touch</h2>
         <p class="meta">Open to conversations about senior product design and product engineering work.</p>
+        <p class="meta">Want to dive deeper into the work, the process, or the case studies behind it? Reach out.</p>
         <!-- TODO: confirm preferred contact address -->
         <a class="big-link" href="mailto:hello@stevenbleau.com?subject=Project%20inquiry">hello@stevenbleau.com</a>
       </section>

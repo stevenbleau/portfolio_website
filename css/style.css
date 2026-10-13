@@ -699,9 +699,8 @@ html.modal-open { overflow: hidden; }
    not stay as invisible ghost-links over the collage. */
 .hero-collage.browsing .typed-line { pointer-events: none; }
 
-/* Pinned to the viewport's right edge and visible at all times, so the
-   section jumps stay reachable anywhere on the page (same floating treatment
-   as the brand widget). The bg ring keeps them legible over collage tiles. */
+/* Pinned to the viewport's right edge, plain circles with no halo or wash:
+   the chips carry their own contrast (inverse-color box, inverse-color text). */
 .dot-nav {
   position: fixed;
   inset-inline-end: var(--gutter);
@@ -710,44 +709,100 @@ html.modal-open { overflow: hidden; }
   z-index: 6;
   display: flex;
   flex-direction: column;
-  gap: var(--s2);
+  gap: var(--s4);
+  background: none;
+  padding: var(--s2) var(--s1);
 }
 
 .dot-nav a {
+  display: inline-flex;
+  flex-direction: row-reverse; /* label sits left of the circle; dot keeps the column edge */
+  align-items: center;
+  gap: var(--s1);
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--fg);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 1;
+  transform-origin: right center;
+}
+
+/* The circle itself (the anchor also carries the label text beside it). */
+.dot-nav a::before {
+  content: "";
   display: block;
+  flex: none;
   width: 14px;
   height: 14px;
   border: 2px solid var(--fg);
   border-radius: 50%;
   background: var(--bg);
-  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Labels expand leftward from the dot when near/hovered. The chip is fully
+   opaque, inverse-colored (foreground box, background-color text); js/main.js
+   drives the width by cursor proximity, CSS hover covers the JS-off case. */
+.dot-nav a { position: relative; }
+
+.dot-nav a span {
+  position: absolute;
+  inset-inline-end: calc(100% + var(--s1));
+  inset-block-start: 50%;
+  translate: 0 -50%;
   opacity: 1;
-  box-shadow: 0 0 0 2px var(--bg);
-  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  max-width: 0;
+  overflow: hidden;
+  transition: max-width 0.25s ease, padding-inline 0.25s ease;
+  white-space: nowrap;
+  background: var(--fg);
+  color: var(--bg);
+  padding: 0.15em 0;
+  text-align: right;
 }
 
 .dot-nav a:hover,
-.dot-nav a:focus-visible {
-  background: var(--fg);
-  outline: none;
-  box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--gold);
+.dot-nav a:focus-visible { outline: none; }
+
+.dot-nav a:hover::before,
+.dot-nav a:focus-visible::before { background: var(--fg); }
+
+/* Fully expand the chip: max-width clears past the longest label, padding
+   opens so the text isn't clipped by the collapsed box. */
+.dot-nav a:hover span,
+.dot-nav a:focus-visible span {
+  max-width: 14em;
+  padding-inline: 0.5em;
 }
 
-/* Current section (js/main.js scroll-spy marks the dot, click sets it too). */
-.dot-nav a.is-active {
-  background: var(--fg);
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--gold);
+/* Touch (no hover to catch, and the proximity loop skips touch): keep the
+   labels open, fully sized, so the jump targets stay labeled. */
+@media (hover: none) {
+  .dot-nav a span {
+    max-width: 14em;
+    padding-inline: 0.5em;
+  }
 }
+
+/* Gallery pairing (js/main.js sets/removes the attribute): while the hero
+   intro is on screen the typed lines are the navigation; the dot column takes
+   over once the intro is minimized. Outside the gallery the attribute is
+   never set, so the column is always visible there. */
+.dot-nav[hidden] { display: none; }
+
+/* Current section (js/main.js scroll-spy marks the dot, click sets it too). */
+.dot-nav a.is-active::before { background: var(--fg); outline: 2px solid var(--gold); outline-offset: 2px; }
 
 .hero-type .typed-line { pointer-events: auto; }
 
-/* Minimize affordance: bold dark corner brackets frame the intro block, and a
-   square outlined button with the same bracket stroke (two opposing corners)
-   sits at the end of the last line. It fades in once the typewriter has
-   finished every line (js/main.js sets .typed-done). No chips. */
+/* Bold dark corner brackets frame the intro block. */
 .typed { position: relative; }
-
-.typed-last { display: flex; align-items: center; gap: 0.5em; }
 
 .typed::before,
 .typed::after {
@@ -755,38 +810,6 @@ html.modal-open { overflow: hidden; }
 
 .typed::before { top: -0.4em; left: -0.3em; border-top: 3px solid; border-left: 3px solid; }
 .typed::after { bottom: -0.2em; right: -0.3em; border-bottom: 3px solid; border-right: 3px solid; }
-
-.typed-min {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 1;
-  background: transparent;
-  color: rgba(0, 0, 0, 0.9);
-  border: 3px solid rgba(0, 0, 0, 0.9);
-  border-radius: 0;
-  font: inherit;
-  font-size: 0.45em;
-  line-height: 1;
-  padding: 0.1em 0.25em;
-  cursor: pointer;
-  pointer-events: auto;
-  transition: background 0.2s ease;
-}
-
-.js .typed-min { opacity: 0; transition: opacity 0.35s ease, background 0.2s ease; }
-.js .typed-done .typed-min { opacity: 1; }
-
-@media (prefers-reduced-motion: reduce) {
-  .typed-min { transition: none; }
-}
-
-/* Matches the corner brackets 1:1: same 14px box, same 3px stroke weight. */
-.typed-min svg { display: block; width: 14px; height: 14px; }
-
-.typed-min:hover { box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.9); }
-
-.typed-min:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--gold); color: var(--gold); }
 
 .typed {
   font-size: calc(var(--tile-w) * 0.1867); /* 56px at the reference's 300px tile */
@@ -1111,6 +1134,21 @@ a.typed-line:focus-visible {
 }
 
 .edu-item .meta { margin-block-end: var(--s1); }
+
+/* Company logos sit atop each Previously column, filling the column width on
+   the same light logo plate the standalone section used. */
+.edu-item img {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  padding: 0.9rem;
+  background: #f1f1f3;
+  margin-block-end: var(--s2);
+}
+
+/* White wordmarks sit on the dark plate. */
+.edu-item img.logo-dark { background: #141414; }
 
 .edu-item p:last-child {
   color: var(--muted);
