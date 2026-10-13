@@ -129,8 +129,18 @@ if (year) year.textContent = String(new Date().getFullYear());
   var tiles = Array.prototype.slice.call(strip.children);
   if (!tiles.length) return;
 
+  /* Each shot sits in a fixed .tile box; the media inside is what zooms, so
+     neighboring boxes never move. */
+  Array.prototype.forEach.call(strip.children, function (t) {
+    var box = document.createElement('span');
+    box.className = 'tile';
+    strip.replaceChild(box, t);
+    box.appendChild(t);
+  });
+  tiles = Array.prototype.slice.call(strip.children);
+
   function addCopy() {
-    tiles.forEach(function (t) { strip.appendChild(t.cloneNode()); });
+    tiles.forEach(function (t) { strip.appendChild(t.cloneNode(true)); });
   }
 
   // One period = the authored block; add copies until there's room to wrap
@@ -201,6 +211,48 @@ if (year) year.textContent = String(new Date().getFullYear());
     });
   }
 
+  /* Cursor gravity: tiles grow and lean toward the pointer, scaled by how
+     close they are to it along the strip. Eased every frame; off under
+     reduced motion and on touch (no hover). */
+  var hoverCap = matchMedia('(hover: hover)').matches;
+  var px = null, py = null;
+  var scales = [];
+
+  function gravity() {
+    var kids = strip.children;
+    var cw = strip.clientWidth || 1;
+    if (!hoverCap || reduce) return;
+    for (var i = 0; i < kids.length; i++) {
+      var t = kids[i];
+      var inner = t.firstElementChild || t;
+      var r = inner.getBoundingClientRect();
+      if (r.right < 0 || r.left > window.innerWidth) continue;
+      var cx = r.left + r.width / 2;
+      var cy = r.top + Math.min(r.height / 2, 160);
+      var fall = 0;
+      if (px !== null) {
+        var dx = cx - px;
+        var dy = cy - py;
+        var d = Math.sqrt(dx * dx + dy * dy);
+        fall = Math.max(0, 1 - d / (cw * 0.55));
+        fall *= fall;
+      } else {
+        var dx = cx - window.innerWidth / 2;
+        var dy = cy - window.innerHeight / 2;
+      }
+      var cur = scales[i];
+      if (cur === undefined) cur = 1;
+      cur += (1 + fall * 0.18 - cur) * 0.12;
+      scales[i] = cur;
+      var tx = fall ? Math.max(-12, Math.min(12, dx * 0.06 * fall)) : 0;
+      var ty = fall ? Math.max(-12, Math.min(12, dy * 0.06 * fall)) : 0;
+      inner.style.transform = 'translate(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px) scale(' + cur.toFixed(3) + ')';
+    }
+  }
+
+  window.addEventListener('pointermove', function (e) { px = e.clientX; py = e.clientY; }, { passive: true });
+  document.documentElement.addEventListener('pointerleave', function () { px = py = null; });
+
   function frame(ts) {
     var auto = !reduce && !dragging && ts > pausedUntil;
     if (auto && last !== null) {
@@ -221,6 +273,7 @@ if (year) year.textContent = String(new Date().getFullYear());
       pos += period;
       startScroll += period;
     }
+    gravity();
     hsbSync();
     requestAnimationFrame(frame);
   }
@@ -453,12 +506,13 @@ if (year) year.textContent = String(new Date().getFullYear());
   });
 })();
 
-/* Horizontal snap rows: mark the centered card .is-focus (CSS scales it up,
-   ducks the neighbors), make the strip keyboard-scrollable, and build a slot
+/* Horizontal snap rows: make the strip keyboard-scrollable and build a slot
    pager under the strip, one clickable slot per card. Clicking a slot
    smooth-scrolls that card to center; the centered card's slot is filled.
-   Without IntersectionObserver, the slots alone still drive scrollTo. */
+   Cards scale with cursor proximity (shared eased loop below) instead of the
+   old center-pop. Without IntersectionObserver, the slots alone still drive scrollTo. */
 (function () {
+  var snapLists = [];
   document.querySelectorAll('[data-hsnap]').forEach(function (list) {
     var items = Array.prototype.slice.call(list.children);
     if (items.length < 2) return;
@@ -489,6 +543,15 @@ if (year) year.textContent = String(new Date().getFullYear());
     }
     activate(items[0]);
 
+    /* Growth budget: half the inter-card gap per side, so scaled cards can
+       never touch their neighbors. */
+    var gap = items[1].offsetLeft - items[0].offsetLeft - items[0].offsetWidth;
+    snapLists.push({
+      els: items,
+      eased: items.map(function () { return 1; }),
+      cap: Math.min(0.05, Math.max(0.02, gap / Math.max(1, items[0].offsetWidth))),
+    });
+
     if (!('IntersectionObserver' in window)) return;
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
@@ -498,6 +561,42 @@ if (year) year.textContent = String(new Date().getFullYear());
     }, { root: list, threshold: 0.75 });
     items.forEach(function (it) { io.observe(it); });
   });
+
+  /* Cursor proximity scaling: cards in every snap row breathe together —
+     each grows toward the pointer (fall-off spans several cards), eased so
+     the field settles without overlaps. */
+  if (snapLists.length && matchMedia('(hover: hover)').matches && !reduceMotion()) {
+    var sx = null, sy = null;
+    window.addEventListener('pointermove', function (e) { sx = e.clientX; sy = e.clientY; }, { passive: true });
+    document.documentElement.addEventListener('pointerleave', function () { sx = sy = null; });
+
+    function snapLoop() {
+      snapLists.forEach(function (cfg) {
+        cfg.els.forEach(function (el) {
+          var media = el.querySelectorAll('img, video');
+          for (var j = 0; j < media.length; j++) {
+            var m = media[j];
+            var r = m.getBoundingClientRect();
+            if (r.right < 0 || r.left > window.innerWidth) continue;
+            var cx = r.left + r.width / 2;
+            var cy = r.top + r.height / 2;
+            var fall = 0;
+            if (sx !== null) {
+              var dx = cx - sx, dy = cy - sy;
+              fall = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / (Math.max(r.width, 360) * 1.1));
+              fall *= fall;
+            }
+            var cur = m._gs === undefined ? 1 : m._gs;
+            cur += (1 + fall * cfg.cap * 3 - cur) * 0.12;
+            m._gs = cur;
+            m.style.transform = 'scale(' + cur.toFixed(3) + ')';
+          }
+        });
+      });
+      requestAnimationFrame(snapLoop);
+    }
+    requestAnimationFrame(snapLoop);
+  }
 })();
 
 /* Product videos: autoplay muted, but only while on screen and only when the

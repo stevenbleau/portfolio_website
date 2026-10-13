@@ -369,9 +369,10 @@ main .wrap > section {
 
 /* ---- Horizontal snap rows ---- */
 /* Card lists inside full-screen sections scroll sideways with a snap threshold
-   and peek: neighbors are scaled/ducked back, the centered card pops toward
-   the viewer (js/main.js toggles .is-focus via IntersectionObserver; with no
-   JS everything renders at full size in a plain grid/stack). */
+   and peek: cards keep a steady footprint and instead breathe with cursor
+   proximity (js/main.js, eased per frame, capped to half the gap so they
+   never overlap; with no JS everything renders at full size in a plain
+   grid/stack). */
 .work-list.work-list--h,
 .edu.edu--h {
   display: flex;
@@ -422,19 +423,14 @@ main .wrap > section {
 .work-list--h::-webkit-scrollbar,
 .edu--h::-webkit-scrollbar { display: none; }
 
+/* Cards keep a constant footprint (no pop-forward scale/duck); js/main.js
+   drives their scale per-frame from cursor proximity, eased to avoid
+   overlapping neighbors. */
 .work-list--h > li,
 .edu--h > li {
   flex: 0 0 var(--item-w);
   scroll-snap-align: center;
-  transform: scale(0.88);
-  opacity: 0.45;
-  transition: transform 0.35s ease, opacity 0.35s ease;
-}
-
-.work-list--h > li.is-focus,
-.edu--h > li.is-focus {
-  transform: scale(1);
-  opacity: 1;
+  will-change: transform;
 }
 
 /* From tablet widths up: one card per row, image beside text. Below the wide
@@ -546,27 +542,25 @@ html.js .collage.dragging { cursor: grabbing; }
   cursor: grab;
 }
 
+/* Fixed tile box (js/main.js wraps each shot); only the media inside zooms,
+   clipped here, so neighboring tiles never shift or overlap. */
+.collage .tile {
+  display: block;
+  overflow: hidden;
+}
+
 .collage img,
 .collage video {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .collage video { background: #000; }
 
-/* Gallery tiles: hover expands the shot a bit out of its cell; a tap/click
-   opens the post modal (js/main.js). Drag-scroll still wins over a click. */
 html.js .collage img,
 html.js .collage video { cursor: pointer; }
-
-html.js .collage img:hover,
-html.js .collage video:hover {
-  position: relative;
-  z-index: 2;
-  transform: scale(1.045);
-}
 
 /* ---- Gallery post modal (Instagram-style) ---- */
 .post-modal {
@@ -680,9 +674,9 @@ html.modal-open { overflow: hidden; }
    98px down from the top of the grid (98/300 of the tile width). */
 .hero-type {
   position: absolute;
-  /* Above the collage tiles' hover pop (z-index: 2 on .collage img): the
-     typed lines always paint over expanded shots. Dots (6), brand widget
-     (7), and the post modal (20) sit above it in turn. */
+   /* Above the collage tiles: the typed lines always paint over the
+      zooming shots. Dots (6), brand widget (7), and the post modal (20)
+      sit above it in turn. */
   z-index: 3;
   inset-block-start: calc(var(--tile-w) * 0.3267);
   inset-inline-start: 35vw;
@@ -915,6 +909,7 @@ a.typed-line:focus-visible {
   align-items: center;
   color: inherit;
   text-decoration: none;
+  overflow: hidden; /* the card box stays put; inner media zooms within it */
 }
 
 /* Mid widths: one card per row, image beside text. */
