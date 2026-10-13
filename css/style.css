@@ -449,6 +449,20 @@ main .wrap > section {
   .work-list--h .work-entry .work-plate--video { aspect-ratio: auto; }
 }
 
+/* Full-width body when a card has no media beside it (education card). */
+.work-entry-body:only-child { grid-column: 1 / -1; }
+
+/* About card: square portrait crop instead of the wide 3/2 plate box. */
+#about .work-entry > img { aspect-ratio: 1; }
+
+@media (min-width: 52rem) {
+  #about .work-entry > img { width: auto; height: min(44dvh, 420px); justify-self: start; }
+}
+
+@media (min-width: 75rem) {
+  #about .work-entry > img { height: min(46dvh, calc(100dvh - 470px)); }
+}
+
 /* Currently on wide screens (MacBook Pro fullscreen): media stacked over text
    in a single card, left-flush at 78% of the column so the ducked next card
    peeks in from the right, the whitespace itself signals "scroll sideways for
