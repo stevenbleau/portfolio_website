@@ -156,6 +156,8 @@ if (year) year.textContent = String(new Date().getFullYear());
   var pos = period; // start one period in so leftward scrolling has room
   var pausedUntil = 0;
   var dragging = false, startX = 0, startScroll = 0;
+  var touching = false;
+  var touching = false;
   var last = null;
 
   strip.scrollLeft = pos;
@@ -295,7 +297,7 @@ if (year) year.textContent = String(new Date().getFullYear());
   function frame(ts) {
     /* Auto-scroll always runs: a slow 18px/s drift is gentle enough to stay on
        under reduced-motion phone settings; drag and pointer still pause it. */
-    var auto = !dragging && ts > pausedUntil;
+    var auto = !dragging && !touching && ts > pausedUntil;
     if (auto && last !== null) {
       pos += SPEED * Math.min(ts - last, 100) / 1000;
       strip.scrollLeft = pos;
@@ -304,15 +306,19 @@ if (year) year.textContent = String(new Date().getFullYear());
     }
     last = ts;
 
-    // seamless wrap, keeping any in-flight drag anchored
-    if (strip.scrollLeft >= period * 2) {
-      strip.scrollLeft -= period;
-      pos -= period;
-      startScroll -= period;
-    } else if (strip.scrollLeft <= 0) {
-      strip.scrollLeft += period;
-      pos += period;
-      startScroll += period;
+    // seamless wrap, keeping any in-flight drag anchored. Skipped while a
+    // finger is down: re-anchoring mid-gesture yanked the strip from under
+    // the user (read as "backwards" scrolling / ignored touch input).
+    if (!touching && !dragging) {
+      if (strip.scrollLeft >= period * 2) {
+        strip.scrollLeft -= period;
+        pos -= period;
+        startScroll -= period;
+      } else if (strip.scrollLeft <= 0) {
+        strip.scrollLeft += period;
+        pos += period;
+        startScroll += period;
+      }
     }
     gravity();
     hsbSync();
@@ -376,7 +382,16 @@ if (year) year.textContent = String(new Date().getFullYear());
   });
 
   ['wheel', 'touchstart'].forEach(function (ev) {
-    strip.addEventListener(ev, function () { rest(2500); browsing(); }, { passive: true });
+    strip.addEventListener(ev, function () {
+      if (ev === 'touchstart') touching = true;
+      rest(2500);
+      browsing();
+    }, { passive: true });
+  });
+  // Lift of the finger ends the gesture: keep the auto paused for a grace
+  // period, then resume from wherever the user left the strip.
+  ['touchend', 'touchcancel'].forEach(function (ev) {
+    strip.addEventListener(ev, function () { touching = false; rest(2500); }, { passive: true });
   });
 
   strip.addEventListener('pointerdown', function (e) {

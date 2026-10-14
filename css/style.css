@@ -781,13 +781,13 @@ html.modal-open { overflow: hidden; }
   padding-inline: 0.5em;
 }
 
-/* Touch (no hover to catch, and the proximity loop skips touch): keep the
-   labels open, fully sized, so the jump targets stay labeled. */
-@media (hover: none) {
-  .dot-nav a span {
-    max-width: 14em;
-    padding-inline: 0.5em;
-  }
+/* Touch (no hover to catch, and the proximity loop skips touch): a tap
+   expands the label via :active/:focus; it stays open until the user taps
+   elsewhere, then collapses again. */
+.dot-nav a:focus span,
+.dot-nav a:active span {
+  max-width: 14em;
+  padding-inline: 0.5em;
 }
 
 /* Gallery pairing (js/main.js sets/removes the attribute): while the hero
