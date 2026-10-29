@@ -431,32 +431,33 @@ if (year) year.textContent = String(new Date().getFullYear());
   if (!strip) return;
 
   var CAPTIONS = {
-    '01': { t: 'Folded display stand', x: 'Accordion-plate display stand with machined wood inserts, retail-form and packaging studies.' },
-    '02': { t: 'Telo Y-Cane', x: 'Telo\'s Y-Cane forearm crutch, the one public product. Ergonomic cuff, clamp, and shaft hardware.' },
-    '03': { t: 'Performance eyewear', x: 'Shield-sunglasses development, rim studies in line work beside a true-color lens render.' },
-    '04': { t: 'Two-wheeler concept', x: 'Early scooter exploration, marker render in the studio\'s blue-and-yellow palette.' },
-    '05': { t: 'Pigeon grocery app', x: 'Pigeon grocery app concept, phone screens for pickup and delivery flows.' },
-    '06': { t: 'Weekender duffel', x: 'Weekender bag, hardware, strap, and logo-placement study for a leathergoods line.' },
-    '07': { t: 'Jig and printed assembly', x: 'Shop reality, a machined fixture beside a printed assembly from the same build cycle.' },
-    '08': { t: 'Utility chassis', x: 'Modular off-road cart chassis, wheel, deck, and packaging study for a robotics platform.' },
-    '09': { t: 'Wearable ring concept', x: 'Handheld wearable ring, proportion and grip exploration for a health device.' },
-    '10': { t: 'Scooter concept', x: 'Yellow scooter concept, rough sketches beside the polished studio render.' },
-    '11': { t: 'Cabin trailer', x: 'Enclosed cabin trailer on oversized wheels, packaging line study.' },
-    '12': { t: 'Intake device', x: 'Shroud and impeller study for an airflow device, CFD-facing render.' },
-    '13': { t: 'Mobility sketches', x: 'Scooter stance and volume studies, loose marker work.' },
-    '14': { t: 'Studio scooter render', x: 'Final surfacing of the mobility concept in the studio render.' },
-    '15': { t: 'Modular eyewear system', x: 'Eyewear system with speaker module, visor forms in sketch and render.' },
-    '16': { t: 'Footwear form language', x: 'Footwear studies, sole and upper iterations.' },
-    '17': { t: 'Cockpit sketch', x: 'Transportation interior study, seat architecture in line work.' },
-    '18': { t: 'Auto front-end studies', x: 'Front-end design iterations, grille, surfacing, and proportion.' },
-    '19': { t: 'Wellness device sketches', x: 'Wellness device exploration, charger, app, and product-form loops.' },
-    '20': { t: 'Robot render', x: 'Robot hardware render, enclosure and packaging study from the R&D bench.' },
-    '21': { t: 'Depth-sense test', x: 'Depth-sensing rig test, live depth capture from a sensing bring-up.' },
-    '22': { t: 'Dotte motion', x: 'Dotte motion study, an animated brand/product loop from concept motion work.' }
+    '01': { t: 'Felt jewelry display', x: 'Flat-pack felt jewelry display concept for Fair Anita. Stiffened felt explored as a low-cost, flat-pack, sustainable alternative to conventional point-of-sale displays.' },
+    '02': { t: 'Telo Y-Cane render', x: 'The Telo Y-Cane, rendered and textured in Blender.' },
+    '03': { t: 'Echolocation eyewear', x: 'Form studies of speculative echolocation eyewear, inspired by bats.' },
+    '04': { t: 'Ossur Ibex prosthetic', x: 'Prosthetic foot concept designed specifically for hikers.' },
+    '05': { t: 'Pigeon donation app', x: 'Pigeon, a crowdsourced physical donation platform that lets communities coordinate hyper-local donation drives.' },
+    '06': { t: 'VL mountaineering inflatable', x: 'Inflatable mountaineering prototype made with thermowelded TPU nylon.' },
+    '07': { t: 'Creation Studios projects', x: 'Program projects used to teach vector design and 3D CAD software, part of an open-source Creation Studios program bringing digital fabrication to public libraries and schools.' },
+    '08': { t: 'Open robotics chassis', x: 'Open robotics platform chassis used to teach and develop mobile robotics.' },
+    '09': { t: 'Apple stethoscope', x: 'Speculative Apple stethoscope, exploring how Apple might lean further into health diagnostics after the Apple Watch.' },
+    '10': { t: 'Scout 50cc scooter', x: 'Scout 50cc off-road motor scooter concept, a sketch render from work at the transportation design studio Studio 04.' },
+    '11': { t: 'FetchBot', x: 'FetchBot, a robotics platform built to test ultra-wideband localization and wayfinding applications.' },
+    '12': { t: 'Submarine-inspired scooter', x: 'Concept motor scooter exploration taking inspiration from submarine form language.' },
+    '13': { t: 'Motor scooter sketches', x: 'Concept motor scooter sketch explorations in Prisma color pencils.' },
+    '14': { t: 'Scooter body render', x: 'Sketch render of a concept motor scooter body, testing different material finishes and contours.' },
+    '15': { t: 'Echolocation sport glasses', x: 'Concept sketches of speculative echolocation sport glasses for the visually impaired.' },
+    '16': { t: 'Hiking prosthetic sketches', x: 'Concept sketch exploration of an off-road hiking prosthetic.' },
+    '17': { t: 'Hiking prosthetic illustration', x: 'Illustration of a concept hiking prosthetic.' },
+    '18': { t: 'Upright wheelchair sketches', x: 'Concept exploration sketches of a self-balancing upright wheelchair with posture support.' },
+    '19': { t: 'Apple stethoscope sketches', x: 'Concept exploration sketches of the speculative Apple stethoscope project.' },
+    '20': { t: 'Robot CAD render', x: 'Blender 3D render of a robot CAD model.' },
+    '21': { t: 'Depth camera test', x: 'Depth camera test using two low-cost Logitech webcams, putting theory to application.' },
+    '22': { t: 'Web UI particle motion', x: 'Web UI particle motion study.' },
+    '23': { t: 'Y-Cane walk cycle', x: 'Informational walk cycle of the Y-Cane for Telo Design, animated in Adobe After Effects.' }
   };
 
   function keyOf(src) {
-    var m = /\/(\d{2})\.(?:webp|mp4|webm|mov)/.exec(src || '');
+    var m = /\/(\d{2})\.(?:webp|mp4|webm|mov|gif)/.exec(src || '');
     return m ? m[1] : null;
   }
 
@@ -632,6 +633,7 @@ if (year) year.textContent = String(new Date().getFullYear());
           var media = el.querySelectorAll('img, video');
           for (var j = 0; j < media.length; j++) {
             var m = media[j];
+            if (m.classList.contains('no-zoom')) continue;
             var r = m.getBoundingClientRect();
             if (r.right < 0 || r.left > window.innerWidth) continue;
             var cx = r.left + r.width / 2;
@@ -687,5 +689,42 @@ if (year) year.textContent = String(new Date().getFullYear());
   vids.forEach(function (v) {
     var p = v.play();
     if (p && p.catch) p.catch(function () {});
+  });
+})();
+
+/* Contact form: AJAX submit to Formspree so the page stays put and shows an
+   inline status. Recipients are configured in the Formspree dashboard, so the
+   email addresses never appear in the page source. */
+(function () {
+  var form = document.querySelector('.contact-form');
+  if (!form) return;
+  var status = form.querySelector('.contact-status');
+  var submit = form.querySelector('.contact-submit');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var data = {};
+    new FormData(form).forEach(function (v, k) { data[k] = v; });
+
+    submit.disabled = true;
+    status.textContent = 'Sending…';
+
+    fetch(form.action, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(data)
+    })
+      .then(function (res) {
+        if (res.ok) {
+          form.reset();
+          status.textContent = 'Thanks, your message is on its way.';
+        } else {
+          return res.json().catch(function () { return {}; }).then(function (body) {
+            throw new Error(body.message || 'Something went wrong. Please try again.');
+          });
+        }
+      })
+      .catch(function (err) { status.textContent = err.message; })
+      .finally(function () { submit.disabled = false; });
   });
 })();

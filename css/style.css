@@ -448,15 +448,44 @@ main .wrap > section {
 /* Full-width body when a card has no media beside it (education card). */
 .work-entry-body:only-child { grid-column: 1 / -1; }
 
-/* About card: square portrait crop instead of the wide 3/2 plate box. */
+/* About card: square portrait crop instead of the wide 3/2 plate box. The
+   portrait sits in a fixed narrow column, right-flushed and a touch smaller
+   than the text column, so the bio gets the room. */
 #about .work-entry > img { aspect-ratio: 1; }
 
 @media (min-width: 52rem) {
-  #about .work-entry > img { width: auto; height: min(44dvh, 420px); justify-self: start; }
+  #about .work-entry { grid-template-columns: minmax(0, 22rem) 1fr; }
+  #about .work-entry > img { width: auto; height: min(38dvh, 21rem); justify-self: end; }
 }
 
-@media (min-width: 75rem) {
-  #about .work-entry > img { height: min(46dvh, calc(100dvh - 470px)); }
+/* Bolded phrases in the bio pop to the foreground so the card scans. */
+#about .work-snapshot strong { color: var(--fg); font-weight: 600; }
+
+/* Mobile: fit each About card's image + text on one screen (no scroll/swipe).
+   The portrait shrinks to a small square, the bio and Previously entries step
+   down in type, and the section trims its padding so a card fills the viewport. */
+@media (max-width: 51.99rem) {
+  #about { padding-block: var(--s3); }
+  /* 86vw is viewport-relative but the card sits inside .wrap's gutters, so it
+     overflows the container on phones; fill the content box instead. */
+  #about .work-list--h { --item-w: 100%; }
+  #about h2 { font-size: var(--fs-2); margin-block-end: var(--s2); }
+  #about .work-list { margin-block-start: var(--s2); }
+  #about .work-entry { gap: var(--s2); }
+  #about .work-entry > img { width: min(32vw, 124px); height: auto; }
+  #about .work-index { margin-block-end: var(--s1); }
+  #about .work-snapshot {
+    font-size: 0.9rem;
+    line-height: 1.35;
+    max-width: none;
+    margin-block-end: var(--s2);
+  }
+  #about .edu { gap: var(--s2); margin-block-start: var(--s2); }
+  #about .edu-item { padding-block-start: var(--s1); }
+  #about .edu-item img { height: 3rem; padding: 0.5rem; margin-block-end: var(--s1); }
+  #about .edu-item h3 { font-size: var(--fs-2); margin-block-end: 0.25rem; }
+  #about .edu-item .meta { margin-block-end: 0.25rem; }
+  #about .edu-item p:last-child { font-size: 0.9rem; line-height: 1.35; }
 }
 
 /* Currently on wide screens (MacBook Pro fullscreen): media stacked over text
@@ -1141,10 +1170,12 @@ a.typed-line:focus-visible {
   display: block;
   box-sizing: border-box;
   width: 100%;
-  height: auto;
+  height: 6rem;
   padding: 0.9rem;
   background: #f1f1f3;
   margin-block-end: var(--s2);
+  object-fit: contain;
+  object-position: center;
 }
 
 /* White wordmarks sit on the dark plate. */
@@ -1301,6 +1332,78 @@ a.typed-line:focus-visible {
 .contact .big-link:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 2px var(--gold);
+}
+
+/* Contact form (Formspree). Square, monochrome, gold only on the black button. */
+.contact-form {
+  display: grid;
+  gap: var(--s2);
+  max-width: 40rem;
+  margin-inline: auto;
+  margin-block-start: var(--s2);
+}
+
+.contact-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--s2);
+}
+
+.contact-field { display: grid; gap: var(--s1); }
+
+.contact-field label {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.contact-field input,
+.contact-field textarea {
+  width: 100%;
+  font: inherit;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.8rem;
+}
+
+.contact-field textarea { resize: vertical; min-height: 8rem; }
+
+.contact-field input:focus-visible,
+.contact-field textarea:focus-visible {
+  outline: none;
+  border-color: var(--fg);
+  box-shadow: 0 0 0 1px var(--fg);
+}
+
+.contact-submit {
+  justify-self: start;
+  font: inherit;
+  font-weight: 600;
+  background: var(--block);
+  color: var(--block-fg);
+  border: 1px solid var(--block);
+  border-radius: var(--radius);
+  padding: 0.7rem 1.4rem;
+  cursor: pointer;
+}
+
+.contact-submit:hover,
+.contact-submit:focus-visible { color: var(--gold); }
+
+.contact-submit:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--gold);
+}
+
+.contact-status {
+  margin: 0;
+  min-height: 1em;
+  font-size: var(--fs--1);
+  color: var(--muted);
 }
 
 .next-nav {
