@@ -387,6 +387,13 @@ main .wrap > section {
 }
 
 .work-list--h { --item-w: min(64rem, 86vw); }
+
+/* Phones: 86vw is viewport-relative but the list sits inside .wrap's gutters
+   (plus the dot column's right inset), so a card would be wider than the strip
+   and center-snap would crop its left edge. Fill the strip's content box. */
+@media (max-width: 51.99rem) {
+  .work-list--h { --item-w: 100%; }
+}
 .edu--h { --item-w: min(26rem, 78vw); }
 
 /* Slot pager (js/main.js builds one slot per card): click a slot to flip the
@@ -466,9 +473,6 @@ main .wrap > section {
    down in type, and the section trims its padding so a card fills the viewport. */
 @media (max-width: 51.99rem) {
   #about { padding-block: var(--s3); }
-  /* 86vw is viewport-relative but the card sits inside .wrap's gutters, so it
-     overflows the container on phones; fill the content box instead. */
-  #about .work-list--h { --item-w: 100%; }
   #about h2 { font-size: var(--fs-2); margin-block-end: var(--s2); }
   #about .work-list { margin-block-start: var(--s2); }
   #about .work-entry { gap: var(--s2); }
@@ -700,18 +704,48 @@ html.modal-open { overflow: hidden; }
 
 /* Reference geometry: block left edge at 35vw (tracks the viewport at every
    width, the old 28rem cap is what made it drift left on large displays),
-   98px down from the top of the grid (98/300 of the tile width). */
+   vertically centered in the hero at every width. */
 .hero-type {
   position: absolute;
    /* Above the collage tiles: the typed lines always paint over the
       zooming shots. Dots (6), brand widget (7), and the post modal (20)
       sit above it in turn. */
   z-index: 3;
-  inset-block-start: calc(var(--tile-w) * 0.3267);
-  inset-inline-start: 35vw;
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  inset-inline-start: 34vw;
   pointer-events: none; /* let drags through the transparent overlay box */
   transition: transform 0.35s ease, opacity 0.35s ease;
   transform-origin: center; /* browsing fade collapses into itself, in place */
+  display: flex;
+  align-items: flex-start;
+  /* Shared by the portrait and the typed lines so the two stay locked:
+     --type-fs is the .typed font size, --portrait-w spans the "Hi." and
+     "I'm Steven." boxes exactly (2 x (1.4 line + 0.4 padding) + 0.2 gap). */
+  --type-fs: calc(var(--tile-w) * 0.1867);
+  --portrait-w: calc(var(--type-fs) * 3.8);
+  --portrait-gap: calc(var(--tile-w) * 0.07);
+  /* Soft shadow on the portrait and lines so they float above the gallery. */
+  --float-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+  gap: var(--portrait-gap);
+}
+
+/* The portrait pops out to the left of the typed lines: a transparent circle
+   (white corners cut away) that stands over the collage, its top flush with the
+   "Hi." box and its bottom flush with the "I'm Steven." box. */
+.hero-portrait {
+  flex: 0 0 auto;
+  width: var(--portrait-w);
+  height: auto;
+  display: block;
+  filter: drop-shadow(var(--float-shadow));
+}
+
+/* The greeting lines ("Hi.", "I'm Steven.") sit to the right of the portrait.
+   The action links pull back across the gap to the portrait's left edge so the
+   whole block reads as one unit. */
+.typed-line--flush {
+  margin-inline-start: calc(-1 * (var(--portrait-w) + var(--portrait-gap)));
 }
 
 /* Manual horizontal browsing of the collage clears the overlay type for
@@ -837,11 +871,12 @@ html.modal-open { overflow: hidden; }
 .typed::after {
   content: ""; position: absolute; width: 14px; height: 14px; opacity: 1; pointer-events: none; color: rgba(0, 0, 0, 0.9); }
 
-.typed::before { top: -0.4em; left: -0.3em; border-top: 3px solid; border-left: 3px solid; }
+/* Top-left bracket sits off the portrait's left edge, not the "Hi." box. */
+.typed::before { top: -0.4em; left: calc(-1 * (var(--portrait-w) + var(--portrait-gap)) - 0.3em); border-top: 3px solid; border-left: 3px solid; }
 .typed::after { bottom: -0.2em; right: -0.3em; border-bottom: 3px solid; border-right: 3px solid; }
 
 .typed {
-  font-size: calc(var(--tile-w) * 0.1867); /* 56px at the reference's 300px tile */
+  font-size: var(--type-fs); /* 56px at the reference's 300px tile */
   line-height: 1.4;
   color: var(--block-fg);
 }
@@ -854,13 +889,17 @@ html.modal-open { overflow: hidden; }
   padding: 0.2em 0.6em;
   margin-block-end: 0.2em;
   text-decoration: none;
+  box-shadow: var(--float-shadow);
 }
 
-/* main.js sets [hidden] on lines it hasn't typed yet. Without this the rule
-   above wins, author `display: block` beats the UA sheet's `[hidden]
-   { display: none }` at equal specificity, and each pending line renders as
-   an empty black box the size of its own padding. */
-.typed-line[hidden] { display: none; }
+/* main.js sets [hidden] on lines it hasn't typed yet. They keep their slot
+   (invisible, unclickable) so the centered block is already its final height
+   and doesn't creep upward as each line types in. */
+.typed-line[hidden] { visibility: hidden; }
+
+/* An emptied line still holds one line of height, so pending lines and the
+   line being typed match the finished line's box exactly. */
+.typed-line:empty::before { content: "\200b"; }
 
 a.typed-line {
   text-decoration: underline;
@@ -876,7 +915,7 @@ a.typed-line:focus-visible {
 
 a.typed-line:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px var(--gold);
+  box-shadow: inset 0 0 0 2px var(--gold), var(--float-shadow);
 }
 
 .cursor::after {
@@ -889,12 +928,6 @@ a.typed-line:focus-visible {
   51%, 100% { opacity: 0; }
 }
 
-/* Tablet and below: vertically center the hero type box. Desktop keeps it high
-   against the grid's top offset; narrower columns make that read as too high. */
-@media (max-width: 75rem) {
-  .hero-type { inset-block-start: 50%; translate: 0 -50%; }
-}
-
 /* Below ~832px there isn't room for a 35vw indent plus the longest line
    ("See what I've been up to" at 56px), so the type is centered in the gutter
    box and steps down proportionally to the viewport. */
@@ -903,10 +936,15 @@ a.typed-line:focus-visible {
      huge photo per row on a phone; all hero ratios derive from --tile-w. */
   .hero-collage { --tile-w: clamp(168px, 44vw, 320px); }
   /* Horizontally centered; the container hug-shrinks so lines stay left-aligned
-     inside it, like desktop. */
-  .hero-type { inset-inline: var(--gutter); }
-  .typed { font-size: clamp(1.7rem, 8vw, 2.6rem); width: max-content; max-width: 100%; margin-inline: auto; }
-  .typed-line { margin-inline: 0; }
+     inside it, like desktop. The portrait stacks above the lines (a left-side
+     circle would crowd the links on a narrow screen). */
+  .hero-type { inset-inline: var(--gutter); flex-direction: column; align-items: center; }
+  .hero-portrait { width: calc(var(--tile-w) * 0.9); }
+  .typed { font-size: clamp(1.5rem, 7vw, 2.6rem); width: max-content; max-width: 100%; margin-inline: auto; }
+  /* Lines stack down the center on a phone instead of hugging the left. */
+  .typed-line { margin-inline: auto; text-align: center; }
+  .typed-line--flush { margin-inline-start: auto; }
+  .typed::before { left: -0.3em; }
 }
 
 /* Keep the fixed dot column and the enlarged brand mark over whitespace in the
@@ -914,6 +952,12 @@ a.typed-line:focus-visible {
    The hero keeps its full-bleed edge (dots sit on tiles there by design). */
 @media (max-width: 52rem) {
   .wrap { padding-inline-end: calc(var(--gutter) + 2.5rem); }
+}
+
+/* Wider screens: the peeking next card would otherwise run under the dots.
+   Main content only; the footer bar keeps its full-gutter edge. */
+@media (min-width: 52.01rem) {
+  main .wrap { padding-inline-end: calc(var(--gutter) + 4rem); }
 }
 
 @media (max-width: 26rem) {
