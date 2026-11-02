@@ -306,18 +306,18 @@ if (year) year.textContent = String(new Date().getFullYear());
     }
     last = ts;
 
-    // seamless wrap, keeping any in-flight drag anchored. Skipped while a
-    // finger is down: re-anchoring mid-gesture yanked the strip from under
-    // the user (read as "backwards" scrolling / ignored touch input).
-    if (!touching && !dragging) {
-      if (strip.scrollLeft >= period * 2) {
-        strip.scrollLeft -= period;
-        pos -= period;
-        startScroll -= period;
-      } else if (strip.scrollLeft <= 0) {
-        strip.scrollLeft += period;
-        pos += period;
-        startScroll += period;
+    // Seamless wrap: re-anchor into the home range [period, 2*period) only
+    // while the auto-scroll owns the strip. While a user scroll (touch, drag,
+    // or wheel/trackpad momentum) is in flight, the native scroll is the source
+    // of truth; re-anchoring mid-momentum yanked the strip back to the start
+    // (the "bounce"). Deferred until the pause ends, where a modulo wrap
+    // absorbs any overshoot in a single frame.
+    if (auto) {
+      var sl = strip.scrollLeft;
+      if (sl >= period * 2 || sl < 0) {
+        var wrapped = (sl % period) + period;
+        strip.scrollLeft = wrapped;
+        pos = wrapped;
       }
     }
     gravity();
