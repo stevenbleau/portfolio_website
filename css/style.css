@@ -503,12 +503,38 @@ main .wrap > section {
   #about .edu-item p:last-child { font-size: 0.9rem; line-height: 1.35; }
 }
 
+/* Mobile: fit the Currently card (media, text, slot pager) on one screen,
+   matching the About compaction. The media is 3:2 of the card width, capped
+   by what the viewport leaves after the text. */
+@media (max-width: 51.99rem) {
+  #currently { padding-block: var(--s3); }
+  #currently h2 { font-size: var(--fs-2); margin-block-end: var(--s2); }
+  #currently .work-list { margin-block-start: var(--s2); }
+  #currently .work-entry { gap: var(--s2); }
+  #currently .work-index { margin-block-end: var(--s1); }
+  #currently .work-snapshot {
+    font-size: 0.9rem;
+    line-height: 1.35;
+    max-width: none;
+    margin-block-end: var(--s2);
+  }
+  #currently .work-plate,
+  #currently .work-gallery {
+    aspect-ratio: auto;
+    height: max(7rem, min(calc((100vw - var(--gutter) * 2 - 2.5rem) * 2 / 3), calc(100dvh - 530px)));
+  }
+}
+
 /* Currently on wide screens (MacBook Pro fullscreen): media stacked over text
    in a single card, left-flush at 78% of the column so the ducked next card
    peeks in from the right, the whitespace itself signals "scroll sideways for
    more". The plate caps at 50dvh so heading + plate + text below all fit one
    screen without scrolling. */
 @media (min-width: 75rem) {
+  /* The media takes what the viewport leaves after the heading, card text and
+     slot pager (~560px of chrome), capped at 46dvh, floored so it never
+     collapses on a short laptop screen. */
+  #currently { --currently-media-h: clamp(10rem, calc(100dvh - 560px), 46dvh); }
   #currently .work-list--h {
     --item-w: 78%;
     padding-inline: 0;
@@ -518,8 +544,8 @@ main .wrap > section {
   /* Explicit height, not aspect-ratio + max-height: the latter makes the
      box shrink its width to height x 3/2 when capped, leaving the plate a
      narrow island instead of the full card width. */
-  #currently .work-plate { aspect-ratio: auto; height: min(46dvh, calc(100dvh - 470px)); }
-  #currently .work-gallery { aspect-ratio: auto; height: min(46dvh, calc(100dvh - 470px)); }
+  #currently .work-plate,
+  #currently .work-gallery { aspect-ratio: auto; height: var(--currently-media-h); }
   #currently .work-snapshot { max-width: 72ch; }
 }
 
