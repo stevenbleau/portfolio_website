@@ -606,6 +606,37 @@ html.js .collage img,
 html.js .collage video,
 html.js .collage canvas { cursor: pointer; }
 
+/* Hover hint that shots open: the caption title slides up as a black chip.
+   Mouse only; touch visitors get the same cue from the modal on first tap. */
+@media (hover: hover) {
+  html.js .collage .tile[data-title]::before {
+    content: attr(data-title);
+    position: absolute;
+    inset-inline-start: 0.5rem;
+    inset-block-end: 0.5rem;
+    z-index: 1;
+    max-width: calc(100% - 1rem);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background: var(--block);
+    color: var(--block-fg);
+    font-size: var(--fs-label);
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0.3em 0.6em;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+  }
+  html.js .collage .tile[data-title]:hover::before {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Keyboard focus on a tile: black ring with a gold core, drawn over the
    media so it reads on light and dark shots alike. */
 .collage .tile { position: relative; }
@@ -1197,8 +1228,6 @@ a.typed-line:focus-visible {
   margin-inline-start: -0.6em; /* optically align text with the column edge */
 }
 
-.work-entry:hover .block,
-.work-entry:focus-visible .block { color: var(--gold); }
 
 .work-snapshot {
   display: block;
@@ -1428,7 +1457,13 @@ a.typed-line:focus-visible {
 .gated:focus { outline: none; }
 
 /* ---- Footer / contact / next-nav ---- */
-.contact h2 { margin-block-end: var(--s1); }
+.contact h2 { margin-block-end: var(--s2); }
+
+.contact-lede {
+  color: var(--muted);
+  max-width: 52ch;
+  margin: 0;
+}
 
 .contact .big-link {
   display: inline-block;
@@ -1457,9 +1492,11 @@ a.typed-line:focus-visible {
 .contact-form {
   display: grid;
   gap: var(--s2);
+  /* width: 100% so the flex-column section doesn't shrink it to its content;
+     left edge stays on the heading's line. */
+  width: 100%;
   max-width: 40rem;
-  margin-inline: auto;
-  margin-block-start: var(--s2);
+  margin-block-start: var(--s3);
 }
 
 .contact-form-row {
@@ -1521,9 +1558,19 @@ a.typed-line:focus-visible {
 .contact-status {
   margin: 0;
   min-height: 1em;
-  font-size: var(--fs--1);
-  color: var(--muted);
+  font-weight: 600;
+  color: var(--fg);
 }
+
+/* Sent: a solid confirmation block in the site's black-box language. */
+.contact-status.is-sent {
+  justify-self: start;
+  background: var(--block);
+  color: var(--block-fg);
+  padding: 0.4em 0.8em;
+}
+
+.contact-status.is-sent::before { content: "\2713\00a0"; color: var(--gold); }
 
 .next-nav {
   display: grid;
