@@ -362,11 +362,14 @@ main .wrap > section {
 
 .site-footer { scroll-snap-align: end; }
 
-/* Touch screens scroll freely. On phones the sections are viewport-tall and
-   the viewport itself resizes as the browser bars slide in and out, so the
-   snap points move mid-fling and mandatory snapping catches and jitters. */
+/* Heights use svh, not dvh: dvh resizes as mobile browser bars slide in and
+   out, which moved the snap points mid-fling (the catch-and-jitter). svh is
+   fixed at the bars-shown height, and equals vh on desktop.
+   Touch keeps mandatory snapping but lets a fast fling carry past a section
+   instead of forcing a stop at every one. */
 @media (pointer: coarse) {
-  html.js { scroll-snap-type: none; }
+  .hero-collage,
+  main .wrap > section { scroll-snap-stop: normal; }
 }
 
 main .wrap > section {
@@ -375,7 +378,7 @@ main .wrap > section {
   justify-content: center;
   justify-content: safe center;
   min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100svh;
 }
 
 /* ---- Horizontal snap rows ---- */
@@ -459,7 +462,7 @@ main .wrap > section {
 @media (min-width: 52rem) and (max-width: 74.99rem) {
   .work-list--h .work-entry > img,
   .work-list--h .work-entry .work-gallery,
-  .work-list--h .work-entry .work-plate { aspect-ratio: auto; height: min(44dvh, 420px); }
+  .work-list--h .work-entry .work-plate { aspect-ratio: auto; height: min(44svh, 420px); }
   .work-list--h .work-entry .work-plate--video { aspect-ratio: auto; }
 }
 
@@ -473,7 +476,7 @@ main .wrap > section {
 
 @media (min-width: 52rem) {
   #about .work-entry { grid-template-columns: minmax(0, 22rem) 1fr; }
-  #about .work-entry > img { width: auto; height: min(38dvh, 21rem); justify-self: end; }
+  #about .work-entry > img { width: auto; height: min(38svh, 21rem); justify-self: end; }
 }
 
 /* Bolded phrases in the bio pop to the foreground so the card scans. */
@@ -521,20 +524,20 @@ main .wrap > section {
   #currently .work-plate,
   #currently .work-gallery {
     aspect-ratio: auto;
-    height: max(7rem, min(calc((100vw - var(--gutter) * 2 - 2.5rem) * 2 / 3), calc(100dvh - 530px)));
+    height: max(7rem, min(calc((100vw - var(--gutter) * 2 - 2.5rem) * 2 / 3), calc(100svh - 530px)));
   }
 }
 
 /* Currently on wide screens (MacBook Pro fullscreen): media stacked over text
    in a single card, left-flush at 78% of the column so the ducked next card
    peeks in from the right, the whitespace itself signals "scroll sideways for
-   more". The plate caps at 50dvh so heading + plate + text below all fit one
+   more". The plate caps at 50svh so heading + plate + text below all fit one
    screen without scrolling. */
 @media (min-width: 75rem) {
   /* The media takes what the viewport leaves after the heading, card text and
-     slot pager (~560px of chrome), capped at 46dvh, floored so it never
+     slot pager (~560px of chrome), capped at 46svh, floored so it never
      collapses on a short laptop screen. */
-  #currently { --currently-media-h: clamp(10rem, calc(100dvh - 560px), 46dvh); }
+  #currently { --currently-media-h: clamp(10rem, calc(100svh - 560px), 46svh); }
   #currently .work-list--h {
     --item-w: 78%;
     padding-inline: 0;
@@ -565,7 +568,7 @@ main .wrap > section {
   --tile-gap: 5px;
   position: relative;
   height: 100vh;
-  height: 100dvh;
+  height: 100svh;
   overflow: hidden;
   padding-block: 0;
 }
