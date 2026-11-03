@@ -851,7 +851,8 @@ if (year) year.textContent = String(new Date().getFullYear());
       if (v._held) v.pause();
       else play(v);
     });
-    v.parentNode.appendChild(b);
+    // On the plate, not inside the link wrapping the video (no button in a link).
+    v.closest('.work-plate').appendChild(b);
   });
 
   if (!('IntersectionObserver' in window)) {
