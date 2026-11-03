@@ -750,6 +750,10 @@ html.modal-open { overflow: hidden; }
   object-fit: contain;
 }
 
+/* The base img { display: block } outranks the UA's [hidden] rule, which left
+   the last opened shot stacked above a video post. Hide the unused slot. */
+.post-media [hidden] { display: none; }
+
 .post-caption {
   display: flex;
   flex-direction: column;
