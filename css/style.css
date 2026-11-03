@@ -11,6 +11,7 @@
   --fg: #1a1b1f;
   --muted: #55555c;
   --line: #e4e4e6;
+  --line-strong: #85858c; /* control borders: 3:1 on white (WCAG 1.4.11) */
   --block: #000000;      /* solid black panels (typed lines, buttons) */
   --block-fg: #ffffff;
   --gold: #f2a902;       /* only on --block or dark bg, fails AA on white */
@@ -50,6 +51,7 @@
     --fg: #eceae6;
     --muted: #a3a0ab;
     --line: #2c2a32;
+    --line-strong: #706d78; /* 3:1 on --bg and --bg-raised */
     --accent: #eceae6;
   }
 }
@@ -413,7 +415,7 @@ main .wrap > section {
   width: 40px;
   height: 6px;
   padding: 0;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   background: transparent;
   border-radius: var(--radius);
   cursor: pointer;
@@ -583,7 +585,8 @@ html.js .collage.dragging { cursor: grabbing; }
 }
 
 .collage img,
-.collage video {
+.collage video,
+.collage canvas {
   display: block;
   width: 100%;
   height: 100%;
@@ -593,7 +596,71 @@ html.js .collage.dragging { cursor: grabbing; }
 .collage video { background: #000; }
 
 html.js .collage img,
-html.js .collage video { cursor: pointer; }
+html.js .collage video,
+html.js .collage canvas { cursor: pointer; }
+
+/* Keyboard focus on a tile: black ring with a gold core, drawn over the
+   media so it reads on light and dark shots alike. */
+.collage .tile { position: relative; }
+.collage .tile:focus-visible { outline: none; }
+.collage .tile:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--block);
+  box-shadow: inset 0 0 0 3px var(--gold), inset 0 0 0 6px var(--block);
+  pointer-events: none;
+}
+
+/* Pause/play for gallery motion (hero) and the card videos: small black
+   squares, white glyph, gold on hover/focus. aria-pressed swaps the glyph. */
+.hero-pause,
+.video-pause {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--block);
+  color: var(--block-fg);
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hero-pause svg,
+.video-pause svg { width: 0.875rem; height: 0.875rem; fill: currentColor; }
+
+.hero-pause:hover,
+.hero-pause:focus-visible,
+.video-pause:hover,
+.video-pause:focus-visible { color: var(--gold); }
+
+.hero-pause:focus-visible,
+.video-pause:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.hero-pause .i-play,
+.video-pause .i-play,
+.hero-pause[aria-pressed="true"] .i-pause,
+.video-pause[aria-pressed="true"] .i-pause { display: none; }
+
+.hero-pause[aria-pressed="true"] .i-play,
+.video-pause[aria-pressed="true"] .i-play { display: block; }
+
+/* Bottom-left of the hero, just above the scrollbar track. */
+.hero-pause {
+  inset-inline-start: var(--gutter);
+  inset-block-end: calc(var(--s1) + 10px + var(--s1));
+}
+
+/* Bottom-right of the video plate (the brand chip holds bottom-left). */
+.video-pause {
+  inset-block-end: 1rem;
+  inset-inline-end: 1rem;
+}
 
 /* ---- Gallery post modal (Instagram-style) ---- */
 .post-modal {
@@ -918,9 +985,10 @@ a.typed-line:focus-visible {
   box-shadow: inset 0 0 0 2px var(--gold), var(--float-shadow);
 }
 
+/* Six blinks (under 5s, WCAG 2.2.2), then the cursor rests solid. */
 .cursor::after {
   content: "|";
-  animation: blink 0.8s infinite;
+  animation: blink 0.8s 6;
 }
 
 @keyframes blink {
@@ -1409,7 +1477,7 @@ a.typed-line:focus-visible {
   font: inherit;
   color: var(--fg);
   background: var(--bg);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius);
   padding: 0.65rem 0.8rem;
 }

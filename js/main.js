@@ -52,6 +52,24 @@ if (year) year.textContent = String(new Date().getFullYear());
     }
   }
 
+  /* A keyboard user shouldn't wait on the animation to reach the links: the
+     first Tab fills every line in at once. */
+  function finish() {
+    if (lineIndex >= lines.length) return;
+    lines.forEach(function (el, i) {
+      el.textContent = texts[i];
+      el.hidden = false;
+      el.classList.toggle('cursor', i === lines.length - 1);
+    });
+    lineIndex = lines.length;
+    container.classList.add('typed-done');
+  }
+  document.addEventListener('keydown', function onTab(e) {
+    if (e.key !== 'Tab') return;
+    finish();
+    document.removeEventListener('keydown', onTab);
+  });
+
   type();
 })();
 
@@ -118,8 +136,10 @@ if (year) year.textContent = String(new Date().getFullYear());
 })();
 
 /* Hero collage: slow auto-scroll in a seamless loop + mouse-drag scrolling.
-   Touch/trackpad scroll natively (CSS overflow). Decorative, so clones are
-   aria-hidden with the container; without JS it's a static scrollable strip. */
+   Touch/trackpad scroll natively (CSS overflow). Clones are aria-hidden; the
+   authored tiles are one arrow-key group (the post modal adds names and
+   Enter/Space). A pause button stops all gallery motion, and it starts paused
+   under reduced motion. Without JS it's a static scrollable strip. */
 (function () {
   var strip = document.querySelector('[data-collage]');
   if (!strip) return;
@@ -138,7 +158,12 @@ if (year) year.textContent = String(new Date().getFullYear());
   tiles = Array.prototype.slice.call(strip.children);
 
   function addCopy() {
-    tiles.forEach(function (t) { strip.appendChild(t.cloneNode(true)); });
+    tiles.forEach(function (t) {
+      var c = t.cloneNode(true);
+      c.classList.add('tile--clone');
+      c.setAttribute('aria-hidden', 'true');
+      strip.appendChild(c);
+    });
   }
 
   // One period = the authored block; add copies until there's room to wrap
@@ -157,7 +182,7 @@ if (year) year.textContent = String(new Date().getFullYear());
   var pausedUntil = 0;
   var dragging = false, startX = 0, startScroll = 0;
   var touching = false;
-  var touching = false;
+  var kbd = false; // a tile holds keyboard focus: the strip stays put
   var last = null;
 
   strip.scrollLeft = pos;
@@ -295,9 +320,9 @@ if (year) year.textContent = String(new Date().getFullYear());
   document.documentElement.addEventListener('pointerleave', function () { px = py = null; });
 
   function frame(ts) {
-    /* Auto-scroll always runs: a slow 18px/s drift is gentle enough to stay on
-       under reduced-motion phone settings; drag and pointer still pause it. */
-    var auto = !dragging && !touching && ts > pausedUntil;
+    /* Auto-scroll runs unless paused (button, or reduced motion at load), a
+       tile has keyboard focus, or a drag/touch/rest window is in effect. */
+    var auto = !paused && !kbd && !dragging && !touching && ts > pausedUntil;
     if (auto && last !== null) {
       pos += SPEED * Math.min(ts - last, 100) / 1000;
       strip.scrollLeft = pos;
@@ -334,9 +359,8 @@ if (year) year.textContent = String(new Date().getFullYear());
   track.className = 'hsb';
   var thumb = document.createElement('div');
   thumb.className = 'hsb-thumb';
-  thumb.setAttribute('role', 'scrollbar');
-  thumb.setAttribute('aria-label', 'Scroll the work gallery');
-  thumb.setAttribute('aria-orientation', 'horizontal');
+  // Pointer-only affordance; keyboard users browse the tiles with arrow keys.
+  track.setAttribute('aria-hidden', 'true');
   track.appendChild(thumb);
   hero.appendChild(track);
 
@@ -419,6 +443,99 @@ if (year) year.textContent = String(new Date().getFullYear());
 
   strip.addEventListener('pointerup', endDrag);
   strip.addEventListener('pointercancel', endDrag);
+
+  /* Pause / play: stops the drift, the looping video tiles, and the GIF (a
+     canvas snapshot of its current frame stands in while paused). */
+  var paused = false;
+  var pauseBtn = document.createElement('button');
+  pauseBtn.type = 'button';
+  pauseBtn.className = 'hero-pause';
+  pauseBtn.setAttribute('aria-label', 'Pause gallery motion');
+  pauseBtn.innerHTML =
+    '<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12"/><rect x="9.5" y="2" width="3.5" height="12"/></svg>' +
+    '<svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z"/></svg>';
+  hero.appendChild(pauseBtn);
+
+  function freezeGif(img) {
+    if (img._still || !img.naturalWidth) return;
+    var c = document.createElement('canvas');
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    c.getContext('2d').drawImage(img, 0, 0);
+    c.setAttribute('aria-hidden', 'true');
+    img.after(c);
+    img.style.display = 'none';
+    img._still = c;
+  }
+
+  function thawGif(img) {
+    if (!img._still) return;
+    img._still.remove();
+    img._still = null;
+    img.style.display = '';
+  }
+
+  function setPaused(p) {
+    paused = p;
+    strip.classList.toggle('is-paused', p);
+    pauseBtn.setAttribute('aria-pressed', String(p));
+    strip.querySelectorAll('video').forEach(function (v) {
+      if (p) v.pause();
+      else { var r = v.play(); if (r && r.catch) r.catch(function () {}); }
+    });
+    strip.querySelectorAll('img[src$=".gif"]').forEach(function (img) {
+      if (!p) return thawGif(img);
+      if (img.complete) freezeGif(img);
+      else img.addEventListener('load', function () { if (paused) freezeGif(img); }, { once: true });
+    });
+  }
+
+  pauseBtn.addEventListener('click', function () { setPaused(!paused); });
+  setPaused(reduce);
+
+  /* Keyboard: one Tab stop for the authored tiles (first appearance of each
+     shot), arrows/Home/End move between them. A focused tile is centered and
+     the hero type steps aside so it isn't covered. Repeats and clones stay
+     out of the accessibility tree. */
+  var seen = {};
+  var keyTiles = tiles.filter(function (t) {
+    var m = t.querySelector('img, video');
+    var src = m && m.getAttribute('src');
+    if (!src || seen[src]) { t.setAttribute('aria-hidden', 'true'); return false; }
+    seen[src] = true;
+    return true;
+  });
+  keyTiles.forEach(function (t, i) { t.tabIndex = i === 0 ? 0 : -1; });
+
+  function centerTile(t) {
+    var tr = t.getBoundingClientRect();
+    var sr = strip.getBoundingClientRect();
+    strip.scrollTo({
+      left: strip.scrollLeft + (tr.left + tr.width / 2) - (sr.left + sr.width / 2),
+      behavior: reduce ? 'auto' : 'smooth'
+    });
+  }
+
+  strip.addEventListener('keydown', function (e) {
+    var i = keyTiles.indexOf(document.activeElement);
+    if (i < 0) return;
+    var n = { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: keyTiles.length - 1 }[e.key];
+    if (n === undefined) return;
+    e.preventDefault();
+    n = Math.max(0, Math.min(keyTiles.length - 1, n));
+    keyTiles[i].tabIndex = -1;
+    keyTiles[n].tabIndex = 0;
+    keyTiles[n].focus({ preventScroll: true });
+  });
+
+  strip.addEventListener('focusin', function (e) {
+    var t = e.target;
+    if (keyTiles.indexOf(t) < 0 || !t.matches(':focus-visible')) return;
+    kbd = true;
+    browsing();
+    centerTile(t);
+  });
+  strip.addEventListener('focusout', function () { kbd = false; rest(2500); });
 
   requestAnimationFrame(frame);
 })();
@@ -545,7 +662,22 @@ if (year) year.textContent = String(new Date().getFullYear());
     if (Math.abs(e.clientX - downX) > 8 || Math.abs(e.clientY - downY) > 8) return;
     if (Math.abs(strip.scrollLeft - downScroll) > 8) return;
     var el = document.elementFromPoint(e.clientX, e.clientY);
+    if (el && el.tagName === 'CANVAS') el = el.previousElementSibling; // paused GIF still
     if (el && (el.tagName === 'IMG' || el.tagName === 'VIDEO') && strip.contains(el)) open(el);
+  });
+
+  /* Keyboard tiles (tabbable ones from the collage script): named by their
+     caption title, opened with Enter or Space like a button. */
+  strip.querySelectorAll('.tile[tabindex]').forEach(function (t) {
+    var m = t.querySelector('img, video');
+    var cap = CAPTIONS[keyOf(m.getAttribute('src'))];
+    t.setAttribute('role', 'button');
+    t.setAttribute('aria-label', cap ? cap.t : 'Gallery item');
+    t.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      open(m);
+    });
   });
 
   /* Backdrop click dismisses. The tile's pointerup already opened the overlay,
@@ -559,7 +691,24 @@ if (year) year.textContent = String(new Date().getFullYear());
   });
   closeBtn.addEventListener('click', close);
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !overlay.hidden) close();
+    if (overlay.hidden) return;
+    if (e.key === 'Escape') close();
+    /* Keep Tab inside the open post: wrap between its first and last
+       focusable controls instead of reaching the page behind. */
+    if (e.key !== 'Tab') return;
+    var f = Array.prototype.filter.call(
+      overlay.querySelectorAll('button, [href], video[controls]'),
+      function (el) { return !el.hidden && el.offsetParent !== null; }
+    );
+    if (!f.length) return;
+    var first = f[0], lastEl = f[f.length - 1];
+    if (e.shiftKey && (document.activeElement === first || !overlay.contains(document.activeElement))) {
+      e.preventDefault();
+      lastEl.focus();
+    } else if (!e.shiftKey && (document.activeElement === lastEl || !overlay.contains(document.activeElement))) {
+      e.preventDefault();
+      first.focus();
+    }
   });
 })();
 
@@ -657,15 +806,35 @@ if (year) year.textContent = String(new Date().getFullYear());
   }
 })();
 
-/* Product videos: autoplay muted while on screen. Always plays (small muted
-   clips are low-distraction); preload="metadata" ships the first frame so iOS
-   paints a poster immediately instead of a black box, playback deferred until
-   the card scrolls into view. */
+/* Product videos: autoplay muted while on screen; preload="metadata" ships
+   the first frame so iOS paints a poster immediately instead of a black box,
+   playback deferred until the card scrolls into view. Each plate gets a
+   pause/play button; pausing holds until the visitor presses play again, and
+   under reduced motion the clips start paused. */
 (function () {
   var vids = Array.prototype.slice.call(document.querySelectorAll('.work-plate--video video'));
   if (!vids.length) return;
 
-  function play(v) { v.play().catch(function () {}); }
+  function play(v) { if (!v._held) v.play().catch(function () {}); }
+
+  vids.forEach(function (v) {
+    v._held = reduceMotion();
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'video-pause';
+    b.setAttribute('aria-label', 'Pause video');
+    b.setAttribute('aria-pressed', String(v._held));
+    b.innerHTML =
+      '<svg class="i-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12"/><rect x="9.5" y="2" width="3.5" height="12"/></svg>' +
+      '<svg class="i-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z"/></svg>';
+    b.addEventListener('click', function () {
+      v._held = !v._held;
+      b.setAttribute('aria-pressed', String(v._held));
+      if (v._held) v.pause();
+      else play(v);
+    });
+    v.parentNode.appendChild(b);
+  });
 
   if (!('IntersectionObserver' in window)) {
     vids.forEach(play);
@@ -685,7 +854,7 @@ if (year) year.textContent = String(new Date().getFullYear());
    suspended after the defer/load race. */
 (function () {
   var vids = Array.prototype.slice.call(document.querySelectorAll('.collage video'));
-  if (!vids.length) return;
+  if (!vids.length || document.querySelector('.collage.is-paused')) return;
   vids.forEach(function (v) {
     var p = v.play();
     if (p && p.catch) p.catch(function () {});

@@ -20,8 +20,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=63">
-  <script src="js/main.js?v=40" defer></script>
+  <link rel="stylesheet" href="css/style.css?v=64">
+  <script src="js/main.js?v=41" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -40,7 +40,7 @@
            recurs only every 6-7 columns so no duplicate is ever on screen, and
            no column repeats a subject. Columns 6+ start off-screen: lazy.
            Regenerate with scratchpad/collage solver if images change. -->
-      <div class="collage" data-collage aria-hidden="true">
+      <div class="collage" data-collage role="group" aria-label="Gallery shots">
         <img src="assets/collage/14.webp" width="300" height="200" alt="">
         <img src="assets/collage/17.webp" width="300" height="200" alt="">
         <img src="assets/collage/03.webp" width="300" height="200" alt="">
@@ -143,7 +143,7 @@
                 <span class="work-index">Founder &middot; Product development &amp; R&amp;D</span>
                 <h3><span class="block">Telo Design</span></h3>
                 <span class="work-snapshot">I&rsquo;m a founder and the head of product development at Telo, where we&rsquo;re rethinking mobility aids to be not only more functional but stylish. Our first product is the Y-Cane, designed to encourage better posture, provide more support, and feel like something you&rsquo;d actually want to use.</span>
-                <a class="work-link" href="https://telodesign.com" target="_blank" rel="noopener">Visit Telo &rarr;</a>
+                <a class="work-link" href="https://telodesign.com" target="_blank" rel="noopener">Visit Telo <span aria-hidden="true">&rarr;</span><span class="visually-hidden"> (opens in a new tab)</span></a>
               </span>
             </div>
           </li>
@@ -236,7 +236,7 @@
           </div>
           <button type="submit" class="contact-submit">Send message</button>
           <p class="contact-status" role="status" aria-live="polite"></p>
-          <input type="text" name="_gotcha" class="visually-hidden" tabindex="-1" autocomplete="off">
+          <input type="text" name="_gotcha" class="visually-hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
         </form>
       </section>
     </div>
