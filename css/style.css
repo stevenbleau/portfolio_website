@@ -258,6 +258,7 @@ a.wordmark:hover span { text-decoration-thickness: 2px; }
   width: var(--brand-logo-w);
   height: auto;
   flex-shrink: 0;
+  transition: filter 0.25s ease;
 }
 
 .brand-float-text {
@@ -275,7 +276,10 @@ a.wordmark:hover span { text-decoration-thickness: 2px; }
   text-decoration: underline;
   text-decoration-thickness: 0.06em;
   text-underline-offset: 0.08em;
-  transition: max-width 0.35s ease, opacity 0.25s ease, margin-inline-start 0.35s ease, padding 0.35s ease;
+  /* Same lift as the hero lines and dot labels while the wordmark shows;
+     dropped when condensed so the zero-width box leaves no smudge. */
+  box-shadow: var(--float-shadow);
+  transition: max-width 0.35s ease, opacity 0.25s ease, margin-inline-start 0.35s ease, padding 0.35s ease, box-shadow 0.25s ease;
 }
 
 /* Condensed: the wordmark and its box slide out, leaving only the mark. */
@@ -284,6 +288,7 @@ a.wordmark:hover span { text-decoration-thickness: 2px; }
   opacity: 0;
   margin-inline-start: 0;
   padding-inline: 0;
+  box-shadow: none;
 }
 
 /* Hovering the floating mark expands the wordmark back out (same gold-on-black
@@ -295,7 +300,12 @@ a.wordmark:hover span { text-decoration-thickness: 2px; }
   margin-inline-start: 0.6em;
   padding-inline: 0.6em;
   color: var(--gold);
+  box-shadow: var(--float-shadow);
 }
+
+/* The mark lifts on hover too; drop-shadow follows its round outline. */
+.brand-float:hover .brand-float-mark,
+.brand-float:focus-visible .brand-float-mark { filter: drop-shadow(var(--float-shadow)); }
 
 /* Over the hero collage the widget sits on top of the browsing dots. */
 @media (max-width: 75rem) {
