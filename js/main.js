@@ -138,8 +138,9 @@ if (year) year.textContent = String(new Date().getFullYear());
 /* Hero collage: slow auto-scroll in a seamless loop + mouse-drag scrolling.
    Touch/trackpad scroll natively (CSS overflow). Clones are aria-hidden; the
    authored tiles are one arrow-key group (the post modal adds names and
-   Enter/Space). A pause button stops all gallery motion, and it starts paused
-   under reduced motion. Without JS it's a static scrollable strip. */
+   Enter/Space). It always starts in motion (a slow drift, kept on even under
+   reduced-motion phone settings); the pause button stops all gallery motion.
+   Without JS it's a static scrollable strip. */
 (function () {
   var strip = document.querySelector('[data-collage]');
   if (!strip) return;
@@ -491,7 +492,7 @@ if (year) year.textContent = String(new Date().getFullYear());
   }
 
   pauseBtn.addEventListener('click', function () { setPaused(!paused); });
-  setPaused(reduce);
+  setPaused(false);
 
   /* Keyboard: one Tab stop for the authored tiles (first appearance of each
      shot), arrows/Home/End move between them. A focused tile is centered and
@@ -809,8 +810,9 @@ if (year) year.textContent = String(new Date().getFullYear());
 /* Product videos: autoplay muted while on screen; preload="metadata" ships
    the first frame so iOS paints a poster immediately instead of a black box,
    playback deferred until the card scrolls into view. Each plate gets a
-   pause/play button; pausing holds until the visitor presses play again, and
-   under reduced motion the clips start paused. */
+   pause/play button; pausing holds until the visitor presses play again.
+   Autoplays for everyone, reduced motion included (the button is the off
+   switch). */
 (function () {
   var vids = Array.prototype.slice.call(document.querySelectorAll('.work-plate--video video'));
   if (!vids.length) return;
@@ -818,7 +820,7 @@ if (year) year.textContent = String(new Date().getFullYear());
   function play(v) { if (!v._held) v.play().catch(function () {}); }
 
   vids.forEach(function (v) {
-    v._held = reduceMotion();
+    v._held = false;
     var b = document.createElement('button');
     b.type = 'button';
     b.className = 'video-pause';
