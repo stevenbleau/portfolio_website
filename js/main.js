@@ -413,6 +413,13 @@ if (year) year.textContent = String(new Date().getFullYear());
       browsing();
     }, { passive: true });
   });
+  // Native scrolling the loop didn't cause (a fling still coasting after the
+  // finger lifts, trackpad momentum) keeps the auto paused, so it never
+  // fights the momentum. The loop's own writes land within a pixel of pos.
+  strip.addEventListener('scroll', function () {
+    if (Math.abs(strip.scrollLeft - pos) > 2) rest(1200);
+  }, { passive: true });
+
   // Lift of the finger ends the gesture: keep the auto paused for a grace
   // period, then resume from wherever the user left the strip.
   ['touchend', 'touchcancel'].forEach(function (ev) {

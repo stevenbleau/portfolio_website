@@ -360,6 +360,13 @@ main .wrap > section {
 
 .site-footer { scroll-snap-align: end; }
 
+/* Touch screens scroll freely. On phones the sections are viewport-tall and
+   the viewport itself resizes as the browser bars slide in and out, so the
+   snap points move mid-fling and mandatory snapping catches and jitters. */
+@media (pointer: coarse) {
+  html.js { scroll-snap-type: none; }
+}
+
 main .wrap > section {
   display: flex;
   flex-direction: column;
