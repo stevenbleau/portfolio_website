@@ -674,6 +674,13 @@ if (year) year.textContent = String(new Date().getFullYear());
     if (el && (el.tagName === 'IMG' || el.tagName === 'VIDEO') && strip.contains(el)) open(el);
   });
 
+  /* Every tile (clones too) carries its caption title for the hover chip. */
+  strip.querySelectorAll('.tile').forEach(function (t) {
+    var m = t.querySelector('img, video');
+    var cap = m && CAPTIONS[keyOf(m.getAttribute('src'))];
+    if (cap) t.dataset.title = cap.t;
+  });
+
   /* Keyboard tiles (tabbable ones from the collage script): named by their
      caption title, opened with Enter or Space like a button. */
   strip.querySelectorAll('.tile[tabindex]').forEach(function (t) {
@@ -885,6 +892,7 @@ if (year) year.textContent = String(new Date().getFullYear());
     new FormData(form).forEach(function (v, k) { data[k] = v; });
 
     submit.disabled = true;
+    status.classList.remove('is-sent');
     status.textContent = 'Sending…';
 
     fetch(form.action, {
@@ -895,6 +903,7 @@ if (year) year.textContent = String(new Date().getFullYear());
       .then(function (res) {
         if (res.ok) {
           form.reset();
+          status.classList.add('is-sent');
           status.textContent = 'Thanks, your message is on its way.';
         } else {
           return res.json().catch(function () { return {}; }).then(function (body) {
