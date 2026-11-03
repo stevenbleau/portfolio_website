@@ -12,6 +12,8 @@
   --muted: #55555c;
   --line: #e4e4e6;
   --line-strong: #85858c; /* control borders: 3:1 on white (WCAG 1.4.11) */
+  /* Soft lift for black chips over imagery (hero portrait and lines, dot labels). */
+  --float-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
   --block: #000000;      /* solid black panels (typed lines, buttons) */
   --block-fg: #ffffff;
   --gold: #f2a902;       /* only on --block or dark bg, fails AA on white */
@@ -830,8 +832,6 @@ html.modal-open { overflow: hidden; }
   --type-fs: calc(var(--tile-w) * 0.1867);
   --portrait-w: calc(var(--type-fs) * 3.8);
   --portrait-gap: calc(var(--tile-w) * 0.07);
-  /* Soft shadow on the portrait and lines so they float above the gallery. */
-  --float-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
   gap: var(--portrait-gap);
 }
 
@@ -947,6 +947,7 @@ html.modal-open { overflow: hidden; }
 .dot-nav a:focus-visible span {
   max-width: 14em;
   padding-inline: 0.5em;
+  box-shadow: var(--float-shadow);
 }
 
 /* Touch (no hover to catch, and the proximity loop skips touch): a tap
@@ -956,6 +957,7 @@ html.modal-open { overflow: hidden; }
 .dot-nav a:active span {
   max-width: 14em;
   padding-inline: 0.5em;
+  box-shadow: var(--float-shadow);
 }
 
 /* Gallery pairing (js/main.js sets/removes the attribute): while the hero
@@ -1155,6 +1157,50 @@ a.typed-line:focus-visible {
   height: 100%;
   min-height: 0;
   object-fit: cover;
+}
+
+/* A linked tile fills its grid cell like a bare one; the shot stays put and
+   the cursor plus focus ring mark it as a link. */
+.work-gallery-link {
+  display: block;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.work-gallery-link:focus-visible { outline-offset: -3px; }
+
+/* Link cue, same black-chip language as the gallery titles: a small arrow
+   chip always sits in the corner (touch has no hover), and on hover/focus it
+   opens out to "Read the story". */
+.work-gallery-link { position: relative; container-type: inline-size; }
+
+.work-gallery-link::after {
+  content: "\2197";
+  position: absolute;
+  inset-inline-start: 0.5rem;
+  inset-block-end: 0.5rem;
+  z-index: 1;
+  max-width: calc(100% - 1rem);
+  overflow: hidden;
+  white-space: nowrap;
+  background: var(--block);
+  color: var(--block-fg);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0.3em 0.6em;
+  pointer-events: none;
+}
+
+.work-gallery-link:hover::after,
+.work-gallery-link:focus-visible::after { color: var(--gold); }
+
+/* The words only fit on wider photos (phones and tablets run ~90-100px per
+   photo, the label needs ~135px); narrower ones keep the arrow, turning gold. */
+@container (min-width: 10rem) {
+  .work-gallery-link:hover::after,
+  .work-gallery-link:focus-visible::after { content: "Read the story \2197"; }
 }
 
 /* Logo plate: stands in for a cover image on gated entries. */

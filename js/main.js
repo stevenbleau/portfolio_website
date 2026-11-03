@@ -309,9 +309,11 @@ if (year) year.textContent = String(new Date().getFullYear());
           if (!lbl._full) lbl._full = Math.ceil(lbl.scrollWidth / (parseFloat(getComputedStyle(lbl).fontSize) || 12)) + 1.5;
           lbl.style.maxWidth = lbl._full + 'em';
           lbl.style.paddingInline = '0.5em';
+          lbl.style.boxShadow = 'var(--float-shadow)';
         } else {
           lbl.style.maxWidth = '0';
           lbl.style.paddingInline = '0';
+          lbl.style.boxShadow = '';
         }
       }
     }
