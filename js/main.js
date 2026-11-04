@@ -454,8 +454,8 @@ if (year) year.textContent = String(new Date().getFullYear());
   strip.addEventListener('pointerup', endDrag);
   strip.addEventListener('pointercancel', endDrag);
 
-  /* Pause / play: stops the drift, the looping video tiles, and the GIF (a
-     canvas snapshot of its current frame stands in while paused). */
+  /* Pause / play: stops the drift, the looping video tiles, and the animated
+     images (a canvas snapshot of the current frame stands in while paused). */
   var paused = false;
   var pauseBtn = document.createElement('button');
   pauseBtn.type = 'button';
@@ -493,7 +493,7 @@ if (year) year.textContent = String(new Date().getFullYear());
       if (p) v.pause();
       else { var r = v.play(); if (r && r.catch) r.catch(function () {}); }
     });
-    strip.querySelectorAll('img[src$=".gif"]').forEach(function (img) {
+    strip.querySelectorAll('img[src$=".gif"], img[data-animated]').forEach(function (img) {
       if (!p) return thawGif(img);
       if (img.complete) freezeGif(img);
       else img.addEventListener('load', function () { if (paused) freezeGif(img); }, { once: true });
@@ -580,7 +580,8 @@ if (year) year.textContent = String(new Date().getFullYear());
     '20': { t: 'Robot CAD render', x: 'Blender 3D render of a robot CAD model.' },
     '21': { t: 'Depth camera test', x: 'Depth camera test using two low-cost Logitech webcams, putting theory to application.' },
     '22': { t: 'Web UI particle motion', x: 'Web UI particle motion study.' },
-    '23': { t: 'Y-Cane walk cycle', x: 'Informational walk cycle of the Y-Cane for Telo Design, animated in Adobe After Effects.' }
+    '23': { t: 'Y-Cane walk cycle', x: 'Informational walk cycle of the Y-Cane for Telo Design, animated in Adobe After Effects.' },
+    '24': { t: 'Y-Cane exploded view', x: 'Animated exploded view of the Telo Y-Cane handle assembly, rendered in Blender.' }
   };
 
   function keyOf(src) {
