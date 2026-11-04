@@ -30,81 +30,91 @@
     <section class="hero-collage" id="work" aria-label="Work gallery">
        <!-- Project shots (assets/collage/01-24): 01-11 from the live
             stevenbleau.design grid, 12-19 from the Portfolio Gallery set,
-            20 (robot render, photo), the 21/22 muted autoplay loops (video
-            GIFs, 21 depth-sense, 22 dotte motion), 23 (walking animation
-            gif), and 24 (exploded render, animated webp, in column 4 in
-            place of 05) placed in the first columns so the motion tiles play
-            on load and read beside the sketches.
-           Column-flow grid, so every 3 tiles below are one column. Order is
-           solved, not arbitrary: the 8 renders/photos are spaced evenly through
-           the 11 sketches (6-8 renders in any 15 visible tiles), each image
-           recurs only every 6-7 columns so no duplicate is ever on screen, and
-           no column repeats a subject. Columns 6+ start off-screen: lazy.
-           Regenerate with scratchpad/collage solver if images change. -->
+            20 (robot render, photo), and four motion loops: 21 depth camera,
+            22 Dotte particle motion, 24 Y-Cane exploded view (animated webp,
+            data-animated so the pause button freezes them) and 23 Y-Cane walk
+            cycle (gif).
+           Column-flow grid, so every 3 tiles below are one column; the 24
+           columns loop. Order is solved, not arbitrary: a motion tile sits in
+           every 3rd column (rows rotating, 1-2 per screen), the 9
+           renders/photos are spaced evenly through the 11 sketches (5-7 in
+           any 15 visible tiles), each image recurs only every 6+ columns so
+           no duplicate is ever on screen, and no column repeats a subject.
+           Columns 6+ start off-screen: lazy.
+           Regenerate with scratchpad/collage_solver.py if images change. -->
       <div class="collage" data-collage role="group" aria-label="Gallery shots">
-        <img src="assets/collage/14.webp" width="300" height="200" alt="">
-        <img src="assets/collage/17.webp" width="300" height="200" alt="">
-        <img src="assets/collage/03.webp" width="300" height="200" alt="">
-        <video src="assets/collage/22.mp4" width="300" height="200" muted loop playsinline autoplay
-               preload="metadata" disablepictureinpicture tabindex="-1" aria-hidden="true"></video>
-        <video src="assets/collage/21.mp4" width="300" height="200" muted loop playsinline autoplay
-               preload="metadata" disablepictureinpicture tabindex="-1" aria-hidden="true"></video>
-        <img src="assets/collage/23.gif" width="300" height="200" alt="">
-        <img src="assets/collage/20.webp" width="300" height="200" alt="">
         <img src="assets/collage/13.webp" width="300" height="200" alt="">
-        <img src="assets/collage/09.webp" width="300" height="200" alt="">
-        <img src="assets/collage/07.webp" width="300" height="200" alt="">
-        <img src="assets/collage/24.webp" width="300" height="200" alt="" data-animated>
-        <img src="assets/collage/12.webp" width="300" height="200" alt="">
-        <img src="assets/collage/15.webp" width="300" height="200" alt="">
-        <img src="assets/collage/10.webp" width="300" height="200" alt="">
-        <img src="assets/collage/16.webp" width="300" height="200" alt="">
-        <img src="assets/collage/19.webp" width="300" height="200" alt="">
-        <img src="assets/collage/11.webp" width="300" height="200" alt="">
+        <img src="assets/collage/08.webp" width="300" height="200" alt="">
         <img src="assets/collage/01.webp" width="300" height="200" alt="">
+        <img src="assets/collage/22.webp" width="300" height="200" alt="" data-animated>
+        <img src="assets/collage/10.webp" width="300" height="200" alt="">
+        <img src="assets/collage/04.webp" width="300" height="200" alt="">
+        <img src="assets/collage/03.webp" width="300" height="200" alt="">
+        <img src="assets/collage/19.webp" width="300" height="200" alt="">
         <img src="assets/collage/02.webp" width="300" height="200" alt="">
-        <img src="assets/collage/08.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/04.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/18.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/17.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/06.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/14.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/09.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/03.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/13.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/12.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/07.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/05.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/18.webp" width="300" height="200" alt="">
+        <img src="assets/collage/20.webp" width="300" height="200" alt="">
+        <img src="assets/collage/12.webp" width="300" height="200" alt="">
+        <img src="assets/collage/09.webp" width="300" height="200" alt="">
+        <img src="assets/collage/06.webp" width="300" height="200" alt="">
+        <img src="assets/collage/23.gif" width="300" height="200" alt="">
         <img src="assets/collage/16.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/07.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/14.webp" width="300" height="200" alt="" loading="lazy">
         <img src="assets/collage/15.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/13.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/11.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/17.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/21.webp" width="300" height="200" alt="" data-animated loading="lazy">
+        <img src="assets/collage/05.webp" width="300" height="200" alt="" loading="lazy">
         <img src="assets/collage/10.webp" width="300" height="200" alt="" loading="lazy">
         <img src="assets/collage/01.webp" width="300" height="200" alt="" loading="lazy">
         <img src="assets/collage/19.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/11.webp" width="300" height="200" alt="" loading="lazy">
         <img src="assets/collage/04.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/02.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/18.webp" width="300" height="200" alt="" loading="lazy">
         <img src="assets/collage/08.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/24.webp" width="300" height="200" alt="" data-animated loading="lazy">
+        <img src="assets/collage/09.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/12.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/20.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/03.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/16.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/13.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/02.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/06.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/07.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/17.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/22.webp" width="300" height="200" alt="" data-animated loading="lazy">
+        <img src="assets/collage/14.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/19.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/11.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/05.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/04.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/18.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/10.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/23.gif" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/15.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/01.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/08.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/16.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/09.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/13.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/03.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/21.webp" width="300" height="200" alt="" data-animated loading="lazy">
+        <img src="assets/collage/20.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/02.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/12.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/19.webp" width="300" height="200" alt="" loading="lazy">
         <img src="assets/collage/06.webp" width="300" height="200" alt="" loading="lazy">
         <img src="assets/collage/18.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/17.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/03.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/14.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/09.webp" width="300" height="200" alt="" loading="lazy">
         <img src="assets/collage/07.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/13.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/12.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/15.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/17.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/14.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/11.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/24.webp" width="300" height="200" alt="" data-animated loading="lazy">
         <img src="assets/collage/05.webp" width="300" height="200" alt="" loading="lazy">
         <img src="assets/collage/16.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/19.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/10.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/01.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/02.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/11.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/04.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/18.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/08.webp" width="300" height="200" alt="" loading="lazy">
-        <img src="assets/collage/06.webp" width="300" height="200" alt="" loading="lazy">
+        <img src="assets/collage/15.webp" width="300" height="200" alt="" loading="lazy">
       </div>
       <div class="hero-type">
         <h1 class="visually-hidden">Hi. I&rsquo;m Steven.</h1>
