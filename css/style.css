@@ -493,8 +493,8 @@ main .wrap > section {
 #about .work-snapshot strong { color: var(--fg); font-weight: 600; }
 
 /* Mobile: fit each About card's image + text on one screen (no scroll/swipe).
-   The portrait shrinks to a small square, the bio and Previously entries step
-   down in type, and the section trims its padding so a card fills the viewport. */
+   The portrait shrinks to a small square, the bio steps down in type, and
+   the section trims its padding so a card fills the viewport. */
 @media (max-width: 51.99rem) {
   #about { padding-block: var(--s3); }
   #about h2 { font-size: var(--fs-2); margin-block-end: var(--s2); }
@@ -508,12 +508,6 @@ main .wrap > section {
     max-width: none;
     margin-block-end: var(--s2);
   }
-  #about .edu { gap: var(--s2); margin-block-start: var(--s2); }
-  #about .edu-item { padding-block-start: var(--s1); }
-  #about .edu-item img { height: 3rem; padding: 0.5rem; margin-block-end: var(--s1); }
-  #about .edu-item h3 { font-size: var(--fs-2); margin-block-end: 0.25rem; }
-  #about .edu-item .meta { margin-block-end: 0.25rem; }
-  #about .edu-item p:last-child { font-size: 0.9rem; line-height: 1.35; }
 }
 
 /* Mobile: fit the Currently card (media, text, slot pager) on one screen,
@@ -536,6 +530,35 @@ main .wrap > section {
     aspect-ratio: auto;
     height: max(7rem, min(calc((100vw - var(--gutter) * 2 - 2.5rem) * 2 / 3), calc(100svh - 530px)));
   }
+  /* Previously card: the three past roles step down in type to fit too. */
+  #previously .edu { gap: var(--s2); margin-block-start: var(--s2); }
+  #previously .edu-item { padding-block-start: var(--s1); }
+  #previously .edu-item h3 { font-size: var(--fs-2); margin-block-end: 0.25rem; }
+  #previously .edu-item .meta { margin-block-end: 0.25rem; }
+  #previously .edu-item p:last-child { font-size: 0.9rem; line-height: 1.35; }
+}
+
+/* Stacked Previously roles (below the 3-column breakpoint): each logo becomes
+   a square tile flush left, with its role's name, discipline and blurb beside
+   it. */
+@media (max-width: 59.99rem) {
+  #previously .edu-item {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    column-gap: var(--s2);
+    align-items: start;
+  }
+  #previously .edu-item img {
+    grid-row: 1 / span 3;
+    width: 5.5rem;
+    height: 5.5rem;
+    padding: 0.6rem;
+    margin-block-end: 0;
+  }
+}
+@media (max-width: 51.99rem) {
+  #previously .edu-item { grid-template-columns: 4.5rem minmax(0, 1fr); }
+  #previously .edu-item img { width: 4.5rem; height: 4.5rem; padding: 0.5rem; }
 }
 
 /* Currently on wide screens (MacBook Pro fullscreen): media stacked over text
@@ -560,6 +583,31 @@ main .wrap > section {
   #currently .work-plate,
   #currently .work-gallery { aspect-ratio: auto; height: var(--currently-media-h); }
   #currently .work-snapshot { max-width: 72ch; }
+  /* Previously card mirrors the two above: the three logo plates become tall
+     tiles in a media row (same height and gap as the photo strip), the label
+     sits under them, and each role's text lines up beneath its logo. The list
+     wrappers dissolve (display: contents) so every piece lands on one grid. */
+  #previously .work-entry-body {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: var(--s2);
+  }
+  #previously .edu,
+  #previously .edu-item { display: contents; }
+  #previously .work-index { grid-row: 2; grid-column: 1 / -1; }
+  #previously .edu-item img {
+    grid-row: 1;
+    height: var(--currently-media-h);
+    padding: 0 18%;
+    margin-block-end: var(--s3);
+  }
+  #previously .edu-item h3 {
+    grid-row: 3;
+    border-top: 2px solid var(--fg);
+    padding-block-start: var(--s2);
+  }
+  #previously .edu-item .meta { grid-row: 4; }
+  #previously .edu-item p:last-child { grid-row: 5; }
 }
 
 /* Focus ring on the keyboard-scrollable strip. */
