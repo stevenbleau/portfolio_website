@@ -9,6 +9,8 @@ if (year) year.textContent = String(new Date().getFullYear());
 
 /* Typewriter hero. Lines exist statically in the markup (works JS-off);
    this empties them and retypes, matching stevenbleau.design's landing.
+   Inline highlights (<em class="hl">) survive: each step rebuilds the line
+   from its original nodes, cut off at the current character count.
    Runs regardless of prefers-reduced-motion: it's a short text reveal, not
    parallax or large-area motion, so it stays on for phones in Reduce Motion. */
 (function () {
@@ -19,6 +21,27 @@ if (year) year.textContent = String(new Date().getFullYear());
   if (!lines.length) return;
 
   var texts = lines.map(function (el) { return el.textContent; });
+  var sources = lines.map(function (el) {
+    return Array.prototype.slice.call(el.childNodes).map(function (n) { return n.cloneNode(true); });
+  });
+
+  function render(i, count) {
+    var el = lines[i];
+    el.textContent = '';
+    var left = count;
+    sources[i].forEach(function (n) {
+      if (left <= 0) return;
+      var t = n.textContent;
+      var part = t.length <= left ? n.cloneNode(true) : null;
+      if (!part) {
+        part = n.nodeType === 3 ? document.createTextNode(t.slice(0, left)) : n.cloneNode(false);
+        if (n.nodeType !== 3) part.textContent = t.slice(0, left);
+      }
+      el.appendChild(part);
+      left -= t.length;
+    });
+  }
+
   lines.forEach(function (el) {
     el.textContent = '';
     el.classList.remove('cursor');
@@ -39,7 +62,7 @@ if (year) year.textContent = String(new Date().getFullYear());
     }
 
     if (charIndex <= text.length) {
-      el.textContent = text.substring(0, charIndex);
+      render(lineIndex, charIndex);
       charIndex++;
       setTimeout(type, 25);
     } else {
@@ -57,7 +80,7 @@ if (year) year.textContent = String(new Date().getFullYear());
   function finish() {
     if (lineIndex >= lines.length) return;
     lines.forEach(function (el, i) {
-      el.textContent = texts[i];
+      render(i, texts[i].length);
       el.hidden = false;
       el.classList.toggle('cursor', i === lines.length - 1);
     });

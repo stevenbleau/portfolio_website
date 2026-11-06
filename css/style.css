@@ -987,6 +987,9 @@ html.modal-open { overflow: hidden; }
 .typed { --small-fs: 0.62; }
 .typed-line--small { font-size: calc(var(--small-fs) * 1em); }
 
+/* Highlighted words in the hero statement: gold on the black line boxes. */
+.typed-line .hl { font-style: normal; color: var(--gold); }
+
 /* Manual horizontal browsing of the collage clears the overlay type for
    good (js/main.js adds .browsing on the first wheel/touch/drag; nothing
    removes it until reload). The dot menu lives at the right edge
