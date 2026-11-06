@@ -17,6 +17,10 @@
   --block: #000000;      /* solid black panels (typed lines, buttons) */
   --block-fg: #ffffff;
   --gold: #f2a902;       /* only on --block or dark bg, fails AA on white */
+  /* "Set back" treatment: the hero collage behind the intro, and the cards
+     that aren't in view in a sideways card row. */
+  --frost-filter: blur(3px) saturate(0.75);
+  --frost-opacity: 0.55;
   --accent: #1a1b1f;     /* links match text, underlined (live-site behavior) */
 
   /* 8px spacing scale */
@@ -236,10 +240,9 @@ a.wordmark:hover span { text-decoration-thickness: 2px; }
 /* Logo + "Steven Bleau . Design", locked to a fixed spot at the viewport's
    bottom-right corner. The gold mark floats free; the black box with white
    text belongs to the wordmark only, in the same language as the typed hero
-   lines. Past the hero the wordmark condenses away (js/main.js toggles
-   .is-condensed on scroll) and the mark alone keeps floating there; hovering
-   or focusing the condensed mark expands the wordmark back out; clicking
-   jumps home to the work gallery. */
+   lines. The wordmark starts condensed (.is-condensed in the markup) so only
+   the mark floats there; hovering or focusing it expands the wordmark out;
+   clicking jumps home to the work gallery. */
 .brand-float {
   --brand-logo-w: clamp(2.6rem, 3vw, 3.25rem);
   position: fixed;
@@ -610,6 +613,16 @@ main .wrap > section {
   #previously .edu-item p:last-child { grid-row: 5; }
 }
 
+/* Sideways card rows: every card but the one in view sits back behind the
+   same frost as the hero collage, and sharpens as it snaps into view.
+   js/main.js adds .hsnap-frost only once its IntersectionObserver is
+   tracking .is-focus, so without it every card stays sharp. */
+.hsnap-frost > li { transition: filter 0.2s ease-out, opacity 0.2s ease-out; }
+.hsnap-frost > li:not(.is-focus) {
+  filter: var(--frost-filter);
+  opacity: var(--frost-opacity);
+}
+
 /* Focus ring on the keyboard-scrollable strip. */
 .work-list--h:focus-visible,
 .edu--h:focus-visible { outline: 2px solid var(--fg); outline-offset: 4px; }
@@ -937,9 +950,8 @@ html.modal-open { overflow: hidden; }
   .post-media video { max-height: 46vh; }
 }
 
-/* Reference geometry: block left edge at 35vw (tracks the viewport at every
-   width, the old 28rem cap is what made it drift left on large displays),
-   vertically centered in the hero at every width. */
+/* Centered in the hero both ways at every width: the box (portrait plus the
+   widest line) is what centers, so the bracket corners sit evenly. */
 .hero-type {
   position: absolute;
    /* Above the collage tiles: the typed lines always paint over the
@@ -947,8 +959,8 @@ html.modal-open { overflow: hidden; }
       sit above it in turn. */
   z-index: 3;
   inset-block-start: 50%;
-  translate: 0 -50%;
-  inset-inline-start: 34vw;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
   pointer-events: none; /* let drags through the transparent overlay box */
   transition: transform 0.35s ease, opacity 0.35s ease;
   transform-origin: center; /* browsing fade collapses into itself, in place */
@@ -1013,8 +1025,8 @@ html.js .collage {
   transition: filter 0.6s ease, opacity 0.6s ease, transform 0.6s ease;
 }
 html.js .hero-collage:not(.browsing) .collage {
-  filter: blur(3px) saturate(0.75);
-  opacity: 0.55;
+  filter: var(--frost-filter);
+  opacity: var(--frost-opacity);
   transform: scale(1.03);
 }
 
@@ -1197,16 +1209,25 @@ a.typed-line:focus-visible {
   /* Horizontally centered; the container hug-shrinks so lines stay left-aligned
      inside it, like desktop. The portrait stacks above the lines (a left-side
      circle would crowd the links on a narrow screen). */
-  .hero-type { inset-inline: var(--gutter); flex-direction: column; align-items: center; }
-  .hero-portrait { width: calc(var(--tile-w) * 0.9); }
+  .hero-type {
+    inset-inline: var(--gutter);
+    translate: 0 -50%;
+    flex-direction: column;
+    align-items: center;
+    --portrait-w: calc(var(--tile-w) * 0.9);
+  }
   .typed { font-size: clamp(1.5rem, 7vw, 2.6rem); width: max-content; max-width: 100%; margin-inline: auto; }
   /* Lines stack down the center on a phone instead of hugging the left. */
   .typed-line { margin-inline: auto; text-align: center; }
   .typed-line--flush { margin-inline-start: auto; }
-  .typed::before { left: -0.3em; }
+  /* The top bracket rises past the stacked portrait (a square, so its
+     height is --portrait-w) so the photo sits inside the frame too. */
+  .typed::before { left: -0.3em; top: calc(-1 * (var(--portrait-w) + var(--portrait-gap)) - 0.4em); }
   /* Centered lines leave no gap beside the last one, so the minimize chip
-     drops just below the bottom-right bracket instead. */
+     drops below the lines, and the bottom-right bracket drops with it so the
+     chip stays inside the frame (0.3em gap + 2.25rem chip + 0.2em clearance). */
   .hero-minimize { inset-block-end: auto; inset-block-start: calc(100% + 0.3em); }
+  .typed::after { bottom: calc(-1 * (0.3em + 2.25rem + 0.2em)); }
 }
 
 /* Keep the fixed dot column and the enlarged brand mark over whitespace in the

@@ -61,17 +61,21 @@ if (year) year.textContent = String(new Date().getFullYear());
       el.classList.add('cursor');
     }
 
+    // The statement lines are long and smaller, so they type at double speed
+    // and the second follows the first with only a short pause.
+    var small = el.classList.contains('typed-line--small');
+
     if (charIndex <= text.length) {
       render(lineIndex, charIndex);
       charIndex++;
-      setTimeout(type, 25);
+      setTimeout(type, small ? 12 : 25);
     } else {
       // keep cursor blinking on the final line
       if (lineIndex < lines.length - 1) el.classList.remove('cursor');
       lineIndex++;
       charIndex = 0;
       if (lineIndex >= lines.length) container.classList.add('typed-done');
-      else setTimeout(type, 500);
+      else setTimeout(type, small ? 200 : 500);
     }
   }
 
@@ -94,29 +98,6 @@ if (year) year.textContent = String(new Date().getFullYear());
   });
 
   type();
-})();
-
-/* Floating brand widget: over the hero the wordmark shows expanded; once the
-   page scrolls past the hero the wordmark condenses to just the logo (CSS in
-   .is-condensed) and STAYS condensed for the rest of the page's life, the
-   only ways back to expanded are hovering/focusing the mark (CSS) or
-   reloading the page. */
-(function () {
-  var brand = document.querySelector('.brand-float');
-  if (!brand) return;
-  var hero = document.querySelector('.hero-collage');
-  var latched = false;
-  function update() {
-    if (latched) return;
-    var threshold = (hero ? hero.offsetHeight : window.innerHeight) * 0.65;
-    if (window.scrollY > threshold) {
-      latched = true;
-      brand.classList.add('is-condensed');
-    }
-  }
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update);
-  update();
 })();
 
 /* Dot menu scroll-spy: the dot whose section fills the viewport middle is
@@ -825,6 +806,7 @@ if (year) year.textContent = String(new Date().getFullYear());
       });
     }, { root: list, threshold: 0.75 });
     items.forEach(function (it) { io.observe(it); });
+    list.classList.add('hsnap-frost');
   });
 
   /* Cursor proximity scaling: cards in every snap row breathe together —
