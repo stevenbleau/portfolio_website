@@ -777,6 +777,43 @@ html.js .collage canvas { cursor: pointer; }
 .hero-pause[aria-pressed="true"] .i-play,
 .video-pause[aria-pressed="true"] .i-play { display: block; }
 
+/* Minimize: same black chip, bottom-right corner of the type block, inside
+   the bracket and level with the bottom of the last line (the 0.2em is that
+   line's bottom margin, in the block's own type size). Fades in once typing
+   finishes so it doesn't slide right as the lines widen the block. */
+.hero-minimize {
+  position: absolute;
+  inset-block-end: 0.2em;
+  inset-inline-end: 0;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--block);
+  color: var(--block-fg);
+  cursor: pointer;
+  box-shadow: var(--float-shadow);
+  pointer-events: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+.typed-done .hero-minimize { opacity: 1; visibility: visible; }
+.hero-minimize svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 6;
+}
+.hero-minimize:hover,
+.hero-minimize:focus-visible { color: var(--gold); }
+.hero-minimize:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.hero-collage.browsing .hero-minimize { pointer-events: none; }
+
 /* Bottom-left of the hero, just above the scrollbar track. */
 .hero-pause {
   inset-inline-start: var(--gutter);
@@ -957,6 +994,20 @@ html.modal-open { overflow: hidden; }
 /* The lines opt back in for clicks normally; once faded for good they must
    not stay as invisible ghost-links over the collage. */
 .hero-collage.browsing .typed-line { pointer-events: none; }
+
+/* While the intro type is up, the collage sits back: soft, faded and a touch
+   desaturated so the type leads. Browsing pulls it into focus; restoring the
+   intro (brand click, returning to the gallery) sends it back. The slight
+   scale hides the blur's soft edge at the viewport sides. JS only, so the
+   no-JS strip stays sharp. */
+html.js .collage {
+  transition: filter 0.6s ease, opacity 0.6s ease, transform 0.6s ease;
+}
+html.js .hero-collage:not(.browsing) .collage {
+  filter: blur(3px) saturate(0.75);
+  opacity: 0.55;
+  transform: scale(1.03);
+}
 
 /* Pinned to the viewport's right edge, plain circles with no halo or wash:
    the chips carry their own contrast (inverse-color box, inverse-color text). */

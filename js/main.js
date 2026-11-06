@@ -503,6 +503,24 @@ if (year) year.textContent = String(new Date().getFullYear());
   pauseBtn.addEventListener('click', function () { setPaused(!paused); });
   setPaused(false);
 
+  /* Minimize: the same hand-off as swiping the gallery, for visitors who
+     don't think to swipe. Sits in the type block's bottom-right corner. */
+  var typed = document.getElementById('typed-container');
+  if (typed) {
+    var minBtn = document.createElement('button');
+    minBtn.type = 'button';
+    minBtn.className = 'hero-minimize';
+    minBtn.setAttribute('aria-label', 'Minimize intro and browse the gallery');
+    minBtn.innerHTML =
+      '<svg viewBox="71 35 74 74" aria-hidden="true"><rect x="75.3" y="39.4" width="65.8" height="65.8"/>' +
+      '<polyline points="113.5 94.9 113.5 76.9 131.3 76.9"/><polyline points="104.4 50 104.4 68 86.7 68"/></svg>';
+    typed.appendChild(minBtn);
+    minBtn.addEventListener('click', function () {
+      browsing();
+      minBtn.blur();
+    });
+  }
+
   /* Keyboard: one Tab stop for the authored tiles (first appearance of each
      shot), arrows/Home/End move between them. A focused tile is centered and
      the hero type steps aside so it isn't covered. Repeats and clones stay
