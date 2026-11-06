@@ -1241,6 +1241,12 @@ a.typed-line:focus-visible {
    Main content only; the footer bar keeps its full-gutter edge. */
 @media (min-width: 52.01rem) {
   main .wrap { padding-inline-end: calc(var(--gutter) + 4rem); }
+  /* The dots' 4rem inset shifts the content column left of the screen's
+     center; an equal left margin on the centered pieces puts them back on it
+     (a centered box moves by half its margin). */
+  .contact-lede,
+  .contact-sub,
+  .contact-form { margin-inline-start: 4rem; }
 }
 
 @media (max-width: 26rem) {
@@ -1697,12 +1703,28 @@ a.typed-line:focus-visible {
 .gated:focus { outline: none; }
 
 /* ---- Footer / contact / next-nav ---- */
-.contact h2 { margin-block-end: var(--s2); }
+/* The label and heading keep the page's left edge like every section; the
+   lede, sub line and form form one form-width column centered on the page. */
+.contact { align-items: center; }
+.contact > * { width: 100%; max-width: 40rem; }
+.contact > .eyebrow,
+.contact > h2 { align-self: stretch; max-width: none; }
 
+.contact h2 { margin-block-end: var(--s3); }
+
+/* Primary line leads in the body color at a larger size; the secondary line
+   follows smaller and muted. */
 .contact-lede {
+  font-size: var(--fs-2);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--fg);
+  margin-block: 0 var(--s1);
+}
+
+.contact-sub {
   color: var(--muted);
-  max-width: 52ch;
-  margin: 0;
+  margin-block: 0;
 }
 
 .contact .big-link {
@@ -1732,10 +1754,6 @@ a.typed-line:focus-visible {
 .contact-form {
   display: grid;
   gap: var(--s2);
-  /* width: 100% so the flex-column section doesn't shrink it to its content;
-     left edge stays on the heading's line. */
-  width: 100%;
-  max-width: 40rem;
   margin-block-start: var(--s3);
 }
 
