@@ -779,11 +779,11 @@ html.js .collage canvas { cursor: pointer; }
 
 /* Minimize: same black chip, bottom-right corner of the type block, inside
    the bracket and level with the bottom of the last line (the 0.2em is that
-   line's bottom margin, in the block's own type size). Fades in once typing
+   line's bottom margin, at the statement lines' smaller size). Fades in once typing
    finishes so it doesn't slide right as the lines widen the block. */
 .hero-minimize {
   position: absolute;
-  inset-block-end: 0.2em;
+  inset-block-end: calc(0.2em * var(--small-fs));
   inset-inline-end: 0;
   display: grid;
   place-items: center;
@@ -980,6 +980,12 @@ html.modal-open { overflow: hidden; }
 .typed-line--flush {
   margin-inline-start: calc(-1 * (var(--portrait-w) + var(--portrait-gap)));
 }
+
+/* The statement lines step down so the long first line keeps the block about
+   as wide as the greeting stack. --small-fs is shared with the minimize chip
+   so it still lines up with the last line's bottom edge. */
+.typed { --small-fs: 0.62; }
+.typed-line--small { font-size: calc(var(--small-fs) * 1em); }
 
 /* Manual horizontal browsing of the collage clears the overlay type for
    good (js/main.js adds .browsing on the first wheel/touch/drag; nothing
@@ -1195,6 +1201,9 @@ a.typed-line:focus-visible {
   .typed-line { margin-inline: auto; text-align: center; }
   .typed-line--flush { margin-inline-start: auto; }
   .typed::before { left: -0.3em; }
+  /* Centered lines leave no gap beside the last one, so the minimize chip
+     drops just below the bottom-right bracket instead. */
+  .hero-minimize { inset-block-end: auto; inset-block-start: calc(100% + 0.3em); }
 }
 
 /* Keep the fixed dot column and the enlarged brand mark over whitespace in the
