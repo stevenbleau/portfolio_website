@@ -482,28 +482,32 @@ main .wrap > section {
 /* Full-width body when a card has no media beside it (education card). */
 .work-entry-body:only-child { grid-column: 1 / -1; }
 
-/* About card: square portrait crop instead of the wide 3/2 plate box. The
-   portrait sits in a fixed narrow column, right-flushed and a touch smaller
-   than the text column, so the bio gets the room. */
-#about .work-entry > img { aspect-ratio: 1; }
-
+/* About card: the photo collage sits beside the bio in equal columns. */
 @media (min-width: 52rem) {
-  #about .work-entry { grid-template-columns: minmax(0, 22rem) 1fr; }
-  #about .work-entry > img { width: auto; height: min(38svh, 21rem); justify-self: end; }
+  #about .work-entry { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+/* Photo collage: a 2x2 grid of 3:2 tiles. Spans clip the hover zoom. */
+.about-photos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s2);
+  width: 100%;
+}
+.about-photos span { display: block; aspect-ratio: 3 / 2; overflow: hidden; }
+.about-photos img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
+.about-photos span:nth-child(1) img { object-position: center 8%; } /* portrait shot: keep the head in frame */
 /* Bolded phrases in the bio pop to the foreground so the card scans. */
 #about .work-snapshot strong { color: var(--fg); font-weight: 600; }
 
-/* Mobile: fit each About card's image + text on one screen (no scroll/swipe).
-   The portrait shrinks to a small square, the bio steps down in type, and
-   the section trims its padding so a card fills the viewport. */
+/* Mobile: fit the About card's collage + text on one screen (no scroll/swipe).
+   The bio steps down in type and the section trims its padding so the card
+   fills the viewport. */
 @media (max-width: 51.99rem) {
   #about { padding-block: var(--s3); }
   #about h2 { font-size: var(--fs-2); margin-block-end: var(--s2); }
   #about .work-list { margin-block-start: var(--s2); }
   #about .work-entry { gap: var(--s2); }
-  #about .work-entry > img { width: min(32vw, 124px); height: auto; }
   #about .work-index { margin-block-end: var(--s1); }
   #about .work-snapshot {
     font-size: 0.9rem;
@@ -563,6 +567,16 @@ main .wrap > section {
 @media (max-width: 51.99rem) {
   #previously .edu-item { grid-template-columns: 4.5rem minmax(0, 1fr); }
   #previously .edu-item img { width: 4.5rem; height: 4.5rem; padding: 0.5rem; }
+}
+
+/* About on wide screens fills the same width and left edge as the work row:
+   the collage takes the larger column, capped so its 3:2 tiles still fit under
+   the heading on short screens, and the bio steps up to fill its column. */
+@media (min-width: 75rem) {
+  #about .work-list--h { --item-w: 100%; padding-inline: 0; }
+  #about .work-entry { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  #about .about-photos { max-width: calc((100svh - 300px) * 1.5); }
+  #about .work-snapshot { font-size: var(--fs-1); line-height: 1.5; max-width: none; }
 }
 
 /* Currently on wide screens (MacBook Pro fullscreen): media stacked over text
