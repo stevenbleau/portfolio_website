@@ -805,15 +805,51 @@ if (year) year.textContent = String(new Date().getFullYear());
       cap: Math.min(0.05, Math.max(0.02, gap / Math.max(1, items[0].offsetWidth))),
     });
 
+    /* Scroll-linked frost: each card's --frost follows how far the strip sits
+       from that card's snap position, measured against its neighbors' snap
+       positions (the last card's is clamped by the scroll range, so the steps
+       aren't equal). */
+    var snaps = [];
+    function measure() {
+      var max = list.scrollWidth - list.clientWidth;
+      snaps = items.map(function (it) {
+        var center = getComputedStyle(it).scrollSnapAlign.indexOf('center') !== -1;
+        var at = center ? it.offsetLeft + it.offsetWidth / 2 - list.clientWidth / 2 : it.offsetLeft;
+        return Math.max(0, Math.min(max, at));
+      });
+    }
+    function frost() {
+      var x = list.scrollLeft;
+      items.forEach(function (it, i) {
+        var at = snaps[i], f = 1;
+        if (x < at && i > 0) f = Math.min(1, (at - x) / (at - snaps[i - 1]));
+        else if (x >= at && i < items.length - 1) f = Math.min(1, (x - at) / (snaps[i + 1] - at));
+        else if (x >= at || i === 0) f = 0;
+        it.style.setProperty('--frost', f.toFixed(3));
+        it.classList.toggle('is-clear', f < 0.002);
+      });
+    }
+    var frostQueued = false;
+    function queueFrost() {
+      if (frostQueued) return;
+      frostQueued = true;
+      requestAnimationFrame(function () { frostQueued = false; frost(); });
+    }
+    function remeasure() { measure(); queueFrost(); }
+    measure();
+    frost();
+    list.classList.add('hsnap-frost');
+    list.addEventListener('scroll', queueFrost, { passive: true });
+    window.addEventListener('resize', remeasure);
+    window.addEventListener('load', remeasure);
+
     if (!('IntersectionObserver' in window)) return;
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
-        en.target.classList.toggle('is-focus', en.isIntersecting);
         if (en.isIntersecting) activate(en.target);
       });
     }, { root: list, threshold: 0.75 });
     items.forEach(function (it) { io.observe(it); });
-    list.classList.add('hsnap-frost');
   });
 
   /* Cursor proximity scaling: cards in every snap row breathe together —

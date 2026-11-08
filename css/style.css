@@ -19,7 +19,9 @@
   --gold: #f2a902;       /* only on --block or dark bg, fails AA on white */
   /* "Set back" treatment: the hero collage behind the intro, and the cards
      that aren't in view in a sideways card row. */
-  --frost-filter: blur(3px) saturate(0.75);
+  --frost-blur: 3px;
+  --frost-sat: 0.75;
+  --frost-filter: blur(var(--frost-blur)) saturate(var(--frost-sat));
   --frost-opacity: 0.55;
   --accent: #1a1b1f;     /* links match text, underlined (live-site behavior) */
 
@@ -629,14 +631,16 @@ main .wrap > section {
 }
 
 /* Sideways card rows: every card but the one in view sits back behind the
-   same frost as the hero collage, and sharpens as it snaps into view.
-   js/main.js adds .hsnap-frost only once its IntersectionObserver is
-   tracking .is-focus, so without it every card stays sharp. */
-.hsnap-frost > li { transition: filter 0.2s ease-out, opacity 0.2s ease-out; }
-.hsnap-frost > li:not(.is-focus) {
-  filter: var(--frost-filter);
-  opacity: var(--frost-opacity);
+   same frost as the hero collage. js/main.js sets --frost per card from the
+   scroll position (0 in view, 1 a full card away), so the frost tracks the
+   swipe with no transition; without JS the class is absent and cards stay
+   sharp. A fully clear card drops the filter so its text renders crisply. */
+.hsnap-frost > li {
+  filter: blur(calc(var(--frost-blur) * var(--frost, 1)))
+    saturate(calc(1 - (1 - var(--frost-sat)) * var(--frost, 1)));
+  opacity: calc(1 - (1 - var(--frost-opacity)) * var(--frost, 1));
 }
+.hsnap-frost > li.is-clear { filter: none; opacity: 1; }
 
 /* Focus ring on the keyboard-scrollable strip. */
 .work-list--h:focus-visible,
