@@ -685,13 +685,20 @@ if (year) year.textContent = String(new Date().getFullYear());
   /* Tiles open on a stationary press-release. The collage loop auto-scrolls,
      so position is sampled at pointerdown and re-checked at pointerup; a
      moving shot under a held finger is browsing, not a tap. Pointer capture
-     during a drag redirects click events to the strip, so hit-test here. */
-  var downX = 0, downY = 0, downScroll = 0;
+     during a drag redirects click events to the strip, so hit-test here.
+     A press while the intro is up only minimizes it: the check runs in the
+     capture phase, ahead of the handlers that add .browsing. */
+  var hero = strip.closest('.hero-collage');
+  var downX = 0, downY = 0, downScroll = 0, introUp = false;
+  strip.addEventListener('pointerdown', function () {
+    introUp = !!hero && !hero.classList.contains('browsing');
+  }, true);
   strip.addEventListener('pointerdown', function (e) {
     downX = e.clientX; downY = e.clientY;
     downScroll = strip.scrollLeft;
   });
   strip.addEventListener('pointerup', function (e) {
+    if (introUp) return;
     if (Math.abs(e.clientX - downX) > 8 || Math.abs(e.clientY - downY) > 8) return;
     if (Math.abs(strip.scrollLeft - downScroll) > 8) return;
     var el = document.elementFromPoint(e.clientX, e.clientY);

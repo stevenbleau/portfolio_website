@@ -522,6 +522,7 @@ main .wrap > section {
   #currently .work-list { margin-block-start: var(--s2); }
   #currently .work-entry { gap: var(--s2); }
   #currently .work-index { margin-block-end: var(--s1); }
+  #currently .work-subhead { font-size: 1rem; margin-block-end: 0.25rem; }
   #currently .work-snapshot {
     font-size: 0.9rem;
     line-height: 1.35;
@@ -571,9 +572,9 @@ main .wrap > section {
    screen without scrolling. */
 @media (min-width: 75rem) {
   /* The media takes what the viewport leaves after the heading, card text and
-     slot pager (~560px of chrome), capped at 46svh, floored so it never
+     slot pager (~600px of chrome), capped at 46svh, floored so it never
      collapses on a short laptop screen. */
-  #currently { --currently-media-h: clamp(10rem, calc(100svh - 560px), 46svh); }
+  #currently { --currently-media-h: clamp(10rem, calc(100svh - 600px), 46svh); }
   #currently .work-list--h {
     --item-w: 78%;
     padding-inline: 0;
@@ -1030,8 +1031,10 @@ html.js .hero-collage:not(.browsing) .collage {
   transform: scale(1.03);
 }
 
-/* Pinned to the viewport's right edge, plain circles with no halo or wash:
-   the chips carry their own contrast (inverse-color box, inverse-color text). */
+/* Pinned to the viewport's right edge, plain circles on a vertical pill of the
+   same frost as the hero collage. The pill is only a backdrop blur plus a page-
+   colored veil, so it disappears over empty page and shows only over content.
+   The chips carry their own contrast (inverse-color box, inverse-color text). */
 .dot-nav {
   position: fixed;
   inset-inline-end: var(--gutter);
@@ -1041,7 +1044,10 @@ html.js .hero-collage:not(.browsing) .collage {
   display: flex;
   flex-direction: column;
   gap: var(--s4);
-  background: none;
+  background: color-mix(in srgb, var(--bg) calc((1 - var(--frost-opacity)) * 100%), transparent);
+  -webkit-backdrop-filter: var(--frost-filter);
+  backdrop-filter: var(--frost-filter);
+  border-radius: 999px;
   padding: var(--s2) var(--s1);
 }
 
@@ -1474,6 +1480,16 @@ a.typed-line:focus-visible {
   margin-inline-start: -0.6em; /* optically align text with the column edge */
 }
 
+
+/* One line on what the company or program is, between its name and what I do. */
+.work-subhead {
+  display: block;
+  font-size: var(--fs-1);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--fg);
+  margin-block-end: var(--s1);
+}
 
 .work-snapshot {
   display: block;
