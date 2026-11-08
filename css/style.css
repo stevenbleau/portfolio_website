@@ -542,7 +542,6 @@ main .wrap > section {
   }
   /* Previously card: the three past roles step down in type to fit too. */
   #previously .edu { gap: var(--s2); margin-block-start: var(--s2); }
-  #previously .edu-item { padding-block-start: var(--s1); }
   #previously .edu-item h3 { font-size: var(--fs-2); margin-block-end: 0.25rem; }
   #previously .edu-item .meta { margin-block-end: 0.25rem; }
   #previously .edu-item p:last-child { font-size: 0.9rem; line-height: 1.35; }
@@ -623,8 +622,6 @@ main .wrap > section {
   }
   #previously .edu-item h3 {
     grid-row: 3;
-    border-top: 2px solid var(--fg);
-    padding-block-start: var(--s2);
   }
   #previously .edu-item .meta { grid-row: 4; }
   #previously .edu-item p:last-child { grid-row: 5; }
@@ -1571,11 +1568,6 @@ a.typed-line:focus-visible {
   }
 }
 
-.edu-item {
-  border-top: 2px solid var(--fg);
-  padding-block-start: var(--s2);
-}
-
 .edu-step {
   font-size: var(--fs-label);
   font-weight: 600;
@@ -1586,9 +1578,12 @@ a.typed-line:focus-visible {
 }
 
 .edu-item h3 {
-  font-size: var(--fs-1);
+  font-size: var(--fs-2);
   margin-block-end: var(--s1);
 }
+
+/* Name blocks start at the logo's edge rather than hanging left of it. */
+#previously .edu-item .block { margin-inline-start: 0; }
 
 .edu-item .meta { margin-block-end: var(--s1); }
 
