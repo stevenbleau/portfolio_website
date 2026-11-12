@@ -112,7 +112,11 @@ if (year) year.textContent = String(new Date().getFullYear());
     var hash = href.indexOf('#');
     return hash === -1 ? null : document.getElementById(href.slice(hash + 1));
   });
+  var active = -1;
+  dots.forEach(function (d, j) { if (d.classList.contains('is-active')) active = j; });
   function activate(i) {
+    if (i === active) return; // scroll fires this constantly; only touch the DOM on a change
+    active = i;
     dots.forEach(function (d, j) {
       d.classList.toggle('is-active', j === i);
       if (j === i) d.setAttribute('aria-current', 'true');
@@ -131,12 +135,62 @@ if (year) year.textContent = String(new Date().getFullYear());
       }
     }
   }
+  /* At most one measurement per painted frame, however many scroll events
+     the browser delivers in it. */
+  var spyQueued = false;
+  function queueSpy() {
+    if (spyQueued) return;
+    spyQueued = true;
+    requestAnimationFrame(function () { spyQueued = false; spy(); });
+  }
   dots.forEach(function (d, i) {
     d.addEventListener('click', function () { activate(i); });
   });
-  window.addEventListener('scroll', spy, { passive: true });
-  window.addEventListener('resize', spy);
+  window.addEventListener('scroll', queueSpy, { passive: true });
+  window.addEventListener('resize', queueSpy);
   spy();
+})();
+
+/* Section jumps (dot menu, floating brand, skip link). The page snaps
+   section-to-section (scroll-snap-type: y mandatory) and a same-page link
+   glides there (scroll-behavior: smooth). The two fight on some phones: while
+   the glide is in flight the browser re-evaluates the snap whenever the layout
+   or the viewport changes (a dot label opening, the dot column hiding, the
+   browser bars sliding), and re-snaps to whichever section is nearest at that
+   instant, so the page lands on the wrong section. Snapping is switched off
+   for the length of the glide (html.is-jumping) and back on once the page has
+   come to rest on the target, which is itself a snap point, so nothing moves
+   when it returns. Any touch, wheel or key hands control straight back. */
+(function () {
+  var root = document.documentElement;
+  var timer = 0;
+
+  function end() {
+    if (!timer) return;
+    clearTimeout(timer);
+    timer = 0;
+    root.classList.remove('is-jumping');
+  }
+  function hold(ms) {
+    clearTimeout(timer);
+    timer = setTimeout(end, ms);
+  }
+
+  document.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var id = a.getAttribute('href').slice(1);
+    if (!id || !document.getElementById(id)) return;
+    root.classList.add('is-jumping');
+    hold(500); // covers a jump that doesn't move (already there): no scroll events follow
+  });
+  // The glide is over when scroll events stop arriving.
+  window.addEventListener('scroll', function () { if (timer) hold(200); }, { passive: true });
+  document.addEventListener('scrollend', end);
+  ['touchstart', 'wheel', 'keydown'].forEach(function (ev) {
+    window.addEventListener(ev, end, { passive: true });
+  });
 })();
 
 /* Hero collage: slow auto-scroll in a seamless loop + mouse-drag scrolling.
@@ -174,12 +228,40 @@ if (year) year.textContent = String(new Date().getFullYear());
   // One period = the authored block; add copies until there's room to wrap
   // on both sides at any viewport width.
   addCopy();
-  var period = strip.children[tiles.length].offsetLeft;
+  var n = tiles.length; // tiles per period
+
+  /* Geometry is measured, cached, and re-measured on resize; nothing in the
+     per-frame loop asks the browser for layout. The tile width follows the
+     viewport (vw), so the period does too: a period measured once at load goes
+     stale on a rotate or window resize, and every wrap after that lands on the
+     wrong shot (a visible jump). It is also fractional at most widths, where
+     offsetLeft rounds to a whole pixel, so it is read from the fractional
+     rects with the strip's own intro scale divided back out. */
+  var period = 0, pitch = 0, rows = 1, cw = 0, maxScroll = 0;
+  function measure() {
+    var kids = strip.children;
+    var first = kids[0], next = kids[n];
+    var rough = next.offsetLeft - first.offsetLeft;
+    var layoutW = parseFloat(getComputedStyle(strip).width);
+    var k = layoutW > 0 ? strip.getBoundingClientRect().width / layoutW : 1;
+    var exact = (next.getBoundingClientRect().left - first.getBoundingClientRect().left) / (k || 1);
+    period = Math.abs(exact - rough) <= 1 ? exact : rough;
+    // Column-flow grid: the first tile that starts a new column gives the row count.
+    for (rows = 1; rows < n && kids[rows].offsetLeft === first.offsetLeft; rows++) {}
+    pitch = period / Math.ceil(n / rows);
+    cw = strip.clientWidth;
+    maxScroll = strip.scrollWidth - cw;
+  }
+  measure();
+
+  // One period = the authored block; add copies until there's room to wrap
+  // on both sides at any viewport width.
   var copies = 2;
   while (strip.scrollWidth < period * 2 + strip.clientWidth && copies < 6) {
     addCopy();
     copies++;
   }
+  maxScroll = strip.scrollWidth - cw;
 
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var SPEED = 18; // px per second
@@ -189,22 +271,37 @@ if (year) year.textContent = String(new Date().getFullYear());
   var touching = false;
   var kbd = false; // a tile holds keyboard focus: the strip stays put
   var last = null;
+  var lastSet = pos;      // the last scroll position this script wrote
+  var autoOwned = false;  // the auto-scroll moved the strip on the last frame
+  var foreignAt = 0;      // last time something else (finger, wheel, momentum) moved it
+  var pageScrollAt = 0;   // last time the page itself scrolled
+  var ticking = false;    // a frame is queued
+  var heroVisible = true; // the gallery is at least partly on screen
 
-  strip.scrollLeft = pos;
+  function setScroll(x) {
+    strip.scrollLeft = x;
+    lastSet = x;
+  }
+  setScroll(pos);
 
   function rest(ms) { pausedUntil = performance.now() + ms; }
 
   var hero = strip.closest('.hero-collage');
   var brand = document.querySelector('.brand-float');
   var nav = document.querySelector('.dot-nav');
+  var heroH = hero ? hero.offsetHeight : 0;
   /* The dot column and the hero intro share one job: guiding the visitor
      through the page. While the intro is on screen in the gallery it is the
      navigation, so the column stays hidden; minimizing the intro hands the job
      over. Everywhere outside the gallery the column is always visible. */
   function syncNav() {
     if (!nav || !hero) return;
-    var inGallery = window.scrollY <= hero.offsetHeight * 0.65;
-    nav.hidden = inGallery && !hero.classList.contains('browsing');
+    var inGallery = window.scrollY <= heroH * 0.65;
+    var hide = inGallery && !hero.classList.contains('browsing');
+    if (nav.hidden !== hide) {
+      nav.hidden = hide;
+      schedule(); // the dots moved in or out from under the pointer
+    }
   }
   /* Swipe/drag fades the hero type away and condenses the floating brand to
      just the logo. The dismissal holds while the visitor is in the gallery
@@ -226,8 +323,9 @@ if (year) year.textContent = String(new Date().getFullYear());
 
   var away = false;
   function restoreOnReturn() {
+    pageScrollAt = performance.now();
     if (!hero) return;
-    var threshold = hero.offsetHeight * 0.65;
+    var threshold = heroH * 0.65;
     if (window.scrollY > threshold) away = true;
     else if (away) {
       away = false;
@@ -252,64 +350,103 @@ if (year) year.textContent = String(new Date().getFullYear());
      close they are to it along the strip. Eased every frame; off under
      reduced motion and on touch (no hover). */
   var hoverCap = matchMedia('(hover: hover)').matches;
+  var fx = hoverCap && !reduce; // pointer-proximity effects are on
   var px = null, py = null;
   var scales = [];
+  var rects = [];
   var dotEls = Array.prototype.slice.call(document.querySelectorAll('.dot-nav a'));
   var dotEased = [];
+  var dotOpen = [];
+  var dotRects = [];
 
-  function gravity() {
+  /* The loop re-anchors the strip by whole periods (see home()). The shots
+     are identical there, but each tile element carries its own eased zoom, so
+     the zoom state moves across with the jump; otherwise the tile under the
+     pointer would snap back to rest and regrow at every re-anchor. */
+  function carryScales(d) { // the strip just moved by d periods
+    if (!fx || !d) return;
+    var total = strip.children.length, src = scales.slice(), shift = d * n;
+    for (var j = 0; j < total; j++) scales[j] = src[(((j - shift) % total) + total) % total];
+  }
+
+  function setTransform(el, s) {
+    if (el._tf === s) return; // unchanged since the last frame: no style write
+    el._tf = s;
+    el.style.transform = s;
+  }
+
+  function tileGravity() {
     var kids = strip.children;
-    var cw = strip.clientWidth || 1;
-    if (!hoverCap || reduce) return;
-    for (var i = 0; i < kids.length; i++) {
-      var t = kids[i];
-      var inner = t.firstElementChild || t;
-      var r = inner.getBoundingClientRect();
-      if (r.right < 0 || r.left > window.innerWidth) continue;
-      var cx = r.left + r.width / 2;
-      var cy = r.top + Math.min(r.height / 2, 160);
-      var fall = 0;
-      if (px !== null) {
-        var dx = cx - px;
-        var dy = cy - py;
-        var d = Math.sqrt(dx * dx + dy * dy);
-        fall = Math.max(0, 1 - d / (cw * 0.55));
-        fall *= fall;
-      } else {
-        var dx = cx - window.innerWidth / 2;
-        var dy = cy - window.innerHeight / 2;
+    // Only the columns on screen (plus one each side), found from the scroll
+    // position rather than by measuring every tile in every copy.
+    var from = Math.max(0, (Math.floor(pos / pitch) - 1) * rows);
+    var to = Math.min(kids.length, (Math.floor((pos + cw) / pitch) + 2) * rows);
+    var i, inner, cur;
+
+    if (px === null) {
+      // Pointer is off the page: nothing to measure, zoomed tiles ease home.
+      for (i = from; i < to; i++) {
+        cur = scales[i];
+        if (cur === undefined || cur === 1) continue;
+        cur += (1 - cur) * 0.12;
+        if (Math.abs(cur - 1) < 0.0005) cur = 1;
+        scales[i] = cur;
+        setTransform(kids[i].firstElementChild || kids[i], 'translate(0.00px,0.00px) scale(' + cur.toFixed(3) + ')');
       }
-      var cur = scales[i];
+      return;
+    }
+
+    // Read every rect first, then write every transform, so the browser
+    // resolves style once per frame instead of once per tile.
+    for (i = from; i < to; i++) rects[i - from] = (kids[i].firstElementChild || kids[i]).getBoundingClientRect();
+    var vw = window.innerWidth;
+    var reach = (cw || 1) * 0.55;
+    for (i = from; i < to; i++) {
+      var r = rects[i - from];
+      if (r.right < 0 || r.left > vw) continue;
+      var dx = r.left + r.width / 2 - px;
+      var dy = r.top + Math.min(r.height / 2, 160) - py;
+      var fall = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / reach);
+      fall *= fall;
+      cur = scales[i];
       if (cur === undefined) cur = 1;
       cur += (1 + fall * 0.18 - cur) * 0.12;
       scales[i] = cur;
       var tx = fall ? Math.max(-12, Math.min(12, dx * 0.06 * fall)) : 0;
       var ty = fall ? Math.max(-12, Math.min(12, dy * 0.06 * fall)) : 0;
-      inner.style.transform = 'translate(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px) scale(' + cur.toFixed(3) + ')';
+      setTransform(kids[i].firstElementChild || kids[i], 'translate(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px) scale(' + cur.toFixed(3) + ')');
     }
+  }
 
-    /* Side dots: grow toward the pointer and open their label by proximity,
-       same easing family as the tiles. Text stays fully opaque throughout —
-       only the box width moves. */
-    for (var j = 0; j < dotEls.length; j++) {
+  /* Side dots: grow toward the pointer and open their label by proximity,
+     same easing family as the tiles. Text stays fully opaque throughout —
+     only the box width moves. Returns true while a dot is still easing. */
+  function dotGravity() {
+    var busy = false, j;
+    for (j = 0; j < dotEls.length; j++) dotRects[j] = dotEls[j].getBoundingClientRect();
+    for (j = 0; j < dotEls.length; j++) {
       var a = dotEls[j];
-      var ar = a.getBoundingClientRect();
-      var acx = ar.right - 7;
-      var acy = ar.top + ar.height / 2;
+      var ar = dotRects[j];
       var afall = 0;
       if (px !== null) {
-        var adx = acx - px, ady = acy - py;
+        var adx = ar.right - 7 - px, ady = ar.top + ar.height / 2 - py;
         afall = Math.max(0, 1 - Math.sqrt(adx * adx + ady * ady) / 180);
         afall *= afall;
       }
       var acur = dotEased[j];
       if (acur === undefined) acur = 0;
-      acur += (afall - acur) * 0.14;
+      if (Math.abs(afall - acur) < 0.0005) acur = afall;
+      else {
+        acur += (afall - acur) * 0.14;
+        busy = true;
+      }
       dotEased[j] = acur;
-      a.style.transform = 'scale(' + (1 + acur * 0.5).toFixed(3) + ')';
+      setTransform(a, 'scale(' + (1 + acur * 0.5).toFixed(3) + ')');
       var lbl = a.firstElementChild;
-      if (lbl) {
-        if (acur > 0.5) {
+      var open = acur > 0.5;
+      if (lbl && dotOpen[j] !== open) {
+        dotOpen[j] = open;
+        if (open) {
           if (!lbl._full) lbl._full = Math.ceil(lbl.scrollWidth / (parseFloat(getComputedStyle(lbl).fontSize) || 12)) + 1.5;
           lbl.style.maxWidth = lbl._full + 'em';
           lbl.style.paddingInline = '0.5em';
@@ -321,40 +458,99 @@ if (year) year.textContent = String(new Date().getFullYear());
         }
       }
     }
+    return busy;
   }
 
-  window.addEventListener('pointermove', function (e) { px = e.clientX; py = e.clientY; }, { passive: true });
-  document.documentElement.addEventListener('pointerleave', function () { px = py = null; });
+  window.addEventListener('pointermove', function (e) {
+    px = e.clientX; py = e.clientY;
+    if (fx) schedule();
+  }, { passive: true });
+  document.documentElement.addEventListener('pointerleave', function () {
+    px = py = null;
+    if (fx) schedule();
+  });
 
-  function frame(ts) {
+  /* Seamless loop: the strip holds identical copies of the authored block, so
+     moving it by exactly one period changes nothing on screen. home() maps a
+     position into the home range [period, 2*period), which keeps a full
+     period of room on the left and nearly one on the right. */
+  function home(x) {
+    if (!(period > 0)) return x;
+    if (x >= period * 2) return (x % period) + period;
+    if (x < period - 1) return x + period;
+    return x;
+  }
+
+  /* Before a new gesture (press, touch, first wheel tick): if the strip is at
+     rest outside the home range, hop it home so the gesture starts with room
+     on both sides. Without this, a few swipes in a row ran into the real end
+     of the strip, a hard stop (a rubber-band bounce on iOS). Skipped while a
+     previous fling is still coasting: rewriting the position mid-momentum is
+     what makes a strip stutter. */
+  function settleHome() {
+    if (performance.now() - foreignAt < 150) return;
+    var x = strip.scrollLeft, h = home(x);
+    if (h === x) return;
+    carryScales(Math.round((h - x) / period));
+    setScroll(h);
+    pos = h;
+  }
+
+  function step(ts) {
     /* Auto-scroll runs unless paused (button, or reduced motion at load), a
-       tile has keyboard focus, or a drag/touch/rest window is in effect. */
-    var auto = !paused && !kbd && !dragging && !touching && ts > pausedUntil;
-    if (auto && last !== null) {
-      pos += SPEED * Math.min(ts - last, 100) / 1000;
-      strip.scrollLeft = pos;
-    } else {
-      pos = strip.scrollLeft;
-    }
+       tile has keyboard focus, a drag/touch/rest window is in effect, or the
+       page itself is mid-scroll (the drift holds still for the section flip,
+       so the browser isn't repainting the strip while it moves the page). */
+    var auto = !paused && !kbd && !dragging && !touching && ts > pausedUntil && ts - pageScrollAt > 120;
+    var advance = auto && last !== null;
+    var x = advance ? pos + SPEED * Math.min(ts - last, 100) / 1000 : strip.scrollLeft;
     last = ts;
 
-    // Seamless wrap: re-anchor into the home range [period, 2*period) only
-    // while the auto-scroll owns the strip. While a user scroll (touch, drag,
-    // or wheel/trackpad momentum) is in flight, the native scroll is the source
-    // of truth; re-anchoring mid-momentum yanked the strip back to the start
-    // (the "bounce"). Deferred until the pause ends, where a modulo wrap
-    // absorbs any overshoot in a single frame.
+    // Seamless wrap: re-anchor into the home range only while the auto-scroll
+    // owns the strip. While a user scroll (touch, drag, or wheel/trackpad
+    // momentum) is in flight, the native scroll is the source of truth;
+    // re-anchoring mid-momentum yanked the strip back to the start (the
+    // "bounce"). Deferred until the pause ends, where a modulo wrap absorbs
+    // any overshoot in a single frame.
     if (auto) {
-      var sl = strip.scrollLeft;
-      if (sl >= period * 2 || sl < 0) {
-        var wrapped = (sl % period) + period;
-        strip.scrollLeft = wrapped;
-        pos = wrapped;
-      }
+      var h = home(x);
+      if (h !== x) carryScales(Math.round((h - x) / period));
+      if (advance || h !== x) setScroll(h);
+      x = h;
     }
-    gravity();
-    hsbSync();
-    requestAnimationFrame(frame);
+    pos = x;
+    autoOwned = auto;
+  }
+
+  /* One loop for everything animated here. It runs every frame only while
+     the gallery is on screen; with the gallery scrolled away it wakes just
+     long enough for the side dots to finish easing after the pointer moves. */
+  function tick(ts) {
+    ticking = false;
+    var busy = false;
+    if (heroVisible) {
+      step(ts);
+      if (fx) tileGravity();
+      hsbSync();
+      busy = true;
+    } else {
+      last = null; // no catch-up jump when the gallery comes back
+    }
+    if (fx && dotGravity()) busy = true;
+    if (busy) schedule();
+  }
+
+  function schedule() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(tick);
+  }
+
+  if (hero && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      heroVisible = entries[entries.length - 1].isIntersecting;
+      if (heroVisible) schedule();
+    }).observe(hero);
   }
 
   /* Draggable scrollbar for mouse users: thumb mirrors scroll position and is
@@ -371,14 +567,45 @@ if (year) year.textContent = String(new Date().getFullYear());
   track.appendChild(thumb);
   hero.appendChild(track);
 
+  /* The thumb's size only changes with the layout, so it is set on measure;
+     its position is a transform (compositor-only) from cached numbers. It used
+     to be a margin computed from fresh layout reads every frame, which made
+     the browser lay the page out again on every frame, forever. */
   var thumbDrag = false, tStartX = 0, tStartScroll = 0;
-  function hsbSync() {
-    var max = strip.scrollWidth - strip.clientWidth;
-    var trackW = track.clientWidth;
-    if (max <= 0 || trackW <= 0) return;
-    thumb.style.width = Math.max(24, (strip.clientWidth / strip.scrollWidth) * trackW) + 'px';
-    if (!thumbDrag) thumb.style.marginLeft = (strip.scrollLeft / max) * (trackW - thumb.offsetWidth) + 'px';
+  var trackW = 0, thumbW = 0, thumbX = null;
+  function measureHsb() {
+    trackW = track.clientWidth;
+    var sw = strip.scrollWidth;
+    if (sw <= 0 || trackW <= 0) return;
+    thumb.style.width = Math.max(24, (cw / sw) * trackW) + 'px';
+    thumbW = thumb.offsetWidth;
+    thumbX = null;
   }
+  function hsbSync() {
+    if (thumbDrag || maxScroll <= 0 || trackW <= 0) return;
+    var dpr = window.devicePixelRatio || 1;
+    var x = Math.round((pos / maxScroll) * (trackW - thumbW) * dpr) / dpr;
+    if (x === thumbX) return;
+    thumbX = x;
+    thumb.style.transform = 'translateX(' + x + 'px)';
+  }
+  measureHsb();
+
+  /* Rotate / resize: re-measure, and keep the same shots at the left edge by
+     scaling the position with the period (the browser keeps the raw pixel
+     offset, which points at different shots once the tiles change size). */
+  window.addEventListener('resize', function () {
+    var old = period;
+    measure();
+    measureHsb();
+    if (hero) heroH = hero.offsetHeight;
+    if (old > 0 && period > 0 && Math.abs(period - old) > 0.01) {
+      var x = strip.scrollLeft * period / old;
+      setScroll(x);
+      pos = x;
+    }
+    schedule();
+  });
 
   thumb.addEventListener('pointerdown', function (e) {
     thumbDrag = true;
@@ -415,15 +642,23 @@ if (year) year.textContent = String(new Date().getFullYear());
   ['wheel', 'touchstart'].forEach(function (ev) {
     strip.addEventListener(ev, function () {
       if (ev === 'touchstart') touching = true;
+      else settleHome(); // touch is settled on pointerdown, before the tap handlers sample the position
       rest(2500);
       browsing();
     }, { passive: true });
   });
   // Native scrolling the loop didn't cause (a fling still coasting after the
   // finger lifts, trackpad momentum) keeps the auto paused, so it never
-  // fights the momentum. The loop's own writes land within a pixel of pos.
+  // fights the momentum. The loop's own writes land within a pixel of what it
+  // last wrote; anything else is someone else's scroll, however slow. (This
+  // used to compare against the position one frame ago and ignore anything
+  // under 2px, so the slow tail of a fling didn't count: the auto-scroll could
+  // resume, and re-anchor, while the strip was still coasting.)
   strip.addEventListener('scroll', function () {
-    if (Math.abs(strip.scrollLeft - pos) > 2) rest(1200);
+    if (autoOwned && Math.abs(strip.scrollLeft - lastSet) <= 1.5) return;
+    var now = performance.now();
+    foreignAt = now;
+    if (pausedUntil < now + 400) pausedUntil = now + 400;
   }, { passive: true });
 
   // Lift of the finger ends the gesture: keep the auto paused for a grace
@@ -433,6 +668,7 @@ if (year) year.textContent = String(new Date().getFullYear());
   });
 
   strip.addEventListener('pointerdown', function (e) {
+    settleHome();
     if (e.pointerType !== 'mouse' || e.button !== 0) return;
     dragging = true;
     startX = e.clientX;
@@ -444,7 +680,15 @@ if (year) year.textContent = String(new Date().getFullYear());
 
   strip.addEventListener('pointermove', function (e) {
     if (!dragging) return;
-    strip.scrollLeft = startScroll - (e.clientX - startX);
+    var x = startScroll - (e.clientX - startX);
+    // Dragged to either real end of the strip: hop one period and keep going.
+    if (period > 0 && (x < 0 || x > maxScroll)) {
+      var d = x < 0 ? 1 : -1;
+      startScroll += d * period;
+      x += d * period;
+      carryScales(d);
+    }
+    setScroll(x);
     browsing();
   });
 
@@ -569,7 +813,7 @@ if (year) year.textContent = String(new Date().getFullYear());
   });
   strip.addEventListener('focusout', function () { kbd = false; rest(2500); });
 
-  requestAnimationFrame(frame);
+  schedule();
 })();
 
 /* Gallery post modal: clicking a collage tile (without dragging) opens an
@@ -825,7 +1069,12 @@ if (year) year.textContent = String(new Date().getFullYear());
         if (x < at && i > 0) f = Math.min(1, (at - x) / (at - snaps[i - 1]));
         else if (x >= at && i < items.length - 1) f = Math.min(1, (x - at) / (snaps[i + 1] - at));
         else if (x >= at || i === 0) f = 0;
-        it.style.setProperty('--frost', f.toFixed(3));
+        // Written only when the value moves: every card is recomputed on
+        // every scroll frame, but only the two around the swipe change.
+        var v = f.toFixed(3);
+        if (it._frost === v) return;
+        it._frost = v;
+        it.style.setProperty('--frost', v);
         it.classList.toggle('is-clear', f < 0.002);
       });
     }
@@ -854,40 +1103,93 @@ if (year) year.textContent = String(new Date().getFullYear());
 
   /* Cursor proximity scaling: cards in every snap row breathe together —
      each grows toward the pointer (fall-off spans several cards), eased so
-     the field settles without overlaps. */
+     the field settles without overlaps. The loop sleeps once every card has
+     settled and wakes on whatever can change the answer: the pointer moving,
+     or the page or a row scrolling under it. */
   if (snapLists.length && matchMedia('(hover: hover)').matches && !reduceMotion()) {
     var sx = null, sy = null;
-    window.addEventListener('pointermove', function (e) { sx = e.clientX; sy = e.clientY; }, { passive: true });
-    document.documentElement.addEventListener('pointerleave', function () { sx = sy = null; });
+    var looping = false;
+    var media = null; // [{ el, cap }], collected once on the first frame
 
-    function snapLoop() {
+    function collect() {
+      media = [];
       snapLists.forEach(function (cfg) {
         cfg.els.forEach(function (el) {
-          var media = el.querySelectorAll('img, video');
-          for (var j = 0; j < media.length; j++) {
-            var m = media[j];
-            if (m.classList.contains('no-zoom')) continue;
-            var r = m.getBoundingClientRect();
-            if (r.right < 0 || r.left > window.innerWidth) continue;
-            var cx = r.left + r.width / 2;
-            var cy = r.top + r.height / 2;
-            var fall = 0;
-            if (sx !== null) {
-              var dx = cx - sx, dy = cy - sy;
-              fall = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / (Math.max(r.width, 360) * 1.1));
-              fall *= fall;
-            }
-            var cur = m._gs === undefined ? 1 : m._gs;
-            cur += (1 + fall * cfg.cap * 3 - cur) * 0.12;
-            m._gs = cur;
-            m.style.transform = 'scale(' + cur.toFixed(3) + ')';
-          }
+          Array.prototype.forEach.call(el.querySelectorAll('img, video'), function (m) {
+            if (!m.classList.contains('no-zoom')) media.push({ el: m, cap: cfg.cap, r: null });
+          });
         });
       });
+    }
+
+    function snapLoop() {
+      looping = false;
+      if (!media) collect();
+      var busy = false, vw = window.innerWidth, j, o;
+      // Read every rect, then write every transform.
+      for (j = 0; j < media.length; j++) media[j].r = media[j].el.getBoundingClientRect();
+      for (j = 0; j < media.length; j++) {
+        o = media[j];
+        var m = o.el, r = o.r;
+        if (r.right < 0 || r.left > vw) continue;
+        var fall = 0;
+        if (sx !== null) {
+          var dx = r.left + r.width / 2 - sx, dy = r.top + r.height / 2 - sy;
+          fall = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / (Math.max(r.width, 360) * 1.1));
+          fall *= fall;
+        }
+        var target = 1 + fall * o.cap * 3;
+        var cur = m._gs === undefined ? 1 : m._gs;
+        if (Math.abs(target - cur) < 0.0005) cur = target;
+        else {
+          cur += (target - cur) * 0.12;
+          busy = true;
+        }
+        m._gs = cur;
+        var t = 'scale(' + cur.toFixed(3) + ')';
+        if (m._tf !== t) {
+          m._tf = t;
+          m.style.transform = t;
+        }
+      }
+      if (busy) wake();
+    }
+
+    function wake() {
+      if (looping) return;
+      looping = true;
       requestAnimationFrame(snapLoop);
     }
-    requestAnimationFrame(snapLoop);
+
+    window.addEventListener('pointermove', function (e) { sx = e.clientX; sy = e.clientY; wake(); }, { passive: true });
+    document.documentElement.addEventListener('pointerleave', function () { sx = sy = null; wake(); });
+    window.addEventListener('scroll', wake, { passive: true });
+    window.addEventListener('resize', wake);
+    snapLists.forEach(function (cfg) {
+      cfg.els[0].parentNode.addEventListener('scroll', wake, { passive: true });
+    });
+    wake();
   }
+})();
+
+/* Below-the-fold images are loading="lazy" so they don't compete with the
+   first screen. Once the page has loaded, fetch them anyway while the browser
+   is idle: a lazy image only starts loading as it scrolls into view, which
+   lands the download and decode in the middle of a section flip or a gallery
+   swipe (blank tiles popping in, a hitch in the scroll). */
+(function () {
+  function warm() {
+    Array.prototype.forEach.call(document.querySelectorAll('img[loading="lazy"]'), function (img) {
+      img.loading = 'eager';
+    });
+  }
+  function soon() {
+    if (navigator.connection && navigator.connection.saveData) return; // Data Saver: stay lazy
+    if ('requestIdleCallback' in window) requestIdleCallback(warm, { timeout: 3000 });
+    else setTimeout(warm, 600);
+  }
+  if (document.readyState === 'complete') soon();
+  else window.addEventListener('load', soon);
 })();
 
 /* Product videos: autoplay muted while on screen; preload="metadata" ships

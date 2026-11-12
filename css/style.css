@@ -76,6 +76,12 @@ html {
 
 html.js { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
 
+/* A same-page link (dot menu, brand) is gliding to its section: snapping is
+   off until the page comes to rest there (js/main.js). Left on, the browser
+   re-snaps mid-glide whenever layout or the viewport changes and can drop the
+   page on a neighboring section instead. */
+html.js.is-jumping { scroll-snap-type: none; }
+
 body {
   margin: 0;
   font-family: var(--font-sans);
@@ -545,6 +551,29 @@ main .wrap > section {
   #previously .edu-item h3 { font-size: var(--fs-2); margin-block-end: 0.25rem; }
   #previously .edu-item .meta { margin-block-end: 0.25rem; }
   #previously .edu-item p:last-child { font-size: 0.9rem; line-height: 1.35; }
+}
+
+/* Mobile: fit the Contact section (heading, both lines, the whole form and
+   its Send button) on one screen, matching the About and Currently
+   compaction. Name and Email share a row, spacing tightens, and the message
+   box takes whatever height the viewport has left (between 4.5 and 8rem).
+   Field text stays at 16px: anything smaller makes iOS zoom the page on
+   focus. */
+@media (max-width: 51.99rem) {
+  #contact { padding-block: var(--s3); }
+  #contact h2 { font-size: var(--fs-2); margin-block-end: var(--s2); }
+  #contact .contact-lede { font-size: var(--fs-1); }
+  #contact .contact-sub { font-size: 0.9rem; line-height: 1.35; }
+  #contact .contact-form { gap: 0.75rem; margin-block-start: var(--s2); }
+  #contact .contact-form-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+  #contact .contact-field { gap: 0.25rem; }
+  #contact .contact-field input,
+  #contact .contact-field textarea { padding: 0.45rem 0.6rem; }
+  #contact .contact-field textarea {
+    min-height: 0;
+    height: clamp(4.5rem, calc(100svh - 29rem), 8rem);
+  }
+  #contact .contact-submit { padding: 0.55rem 1.2rem; }
 }
 
 /* Stacked Previously roles (below the 3-column breakpoint): each logo becomes
@@ -1142,6 +1171,18 @@ html.js .hero-collage:not(.browsing) .collage {
   max-width: 14em;
   padding-inline: 0.5em;
   box-shadow: var(--float-shadow);
+}
+
+/* Touch: the dots are 14px, well under a fingertip, and a near miss either
+   does nothing or lands on the neighboring dot (the wrong section). An
+   invisible pad extends each dot's tap area to meet its neighbors halfway;
+   nothing is drawn and mouse hover is unaffected. */
+@media (pointer: coarse) {
+  .dot-nav a::after {
+    content: "";
+    position: absolute;
+    inset: -1rem -0.75rem;
+  }
 }
 
 /* Gallery pairing (js/main.js sets/removes the attribute): while the hero
