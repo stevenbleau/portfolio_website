@@ -1261,10 +1261,12 @@ a.typed-line:focus-visible {
   51%, 100% { opacity: 0; }
 }
 
-/* Below ~832px there isn't room for a 35vw indent plus the longest line
-   ("See what I've been up to" at 56px), so the type is centered in the gutter
-   box and steps down proportionally to the viewport. */
-@media (max-width: 52rem) {
+/* Stacked (phone) intro. The side-by-side intro is positioned from the
+   screen's center (left: 50%), so it can be at most half the window wide; it
+   needs ~485px, so below ~970px its lines wrapped ("I'm / Steven.") instead
+   of switching layout. The stacked intro takes over from 61rem (976px) down.
+   The rest of the page keeps its 52rem breakpoint. */
+@media (max-width: 61rem) {
   /* Smaller tiles so the collage reads as a grid (two+ across) instead of one
      huge photo per row on a phone; all hero ratios derive from --tile-w. */
   .hero-collage { --tile-w: clamp(168px, 44vw, 320px); }
@@ -1276,7 +1278,10 @@ a.typed-line:focus-visible {
     translate: 0 -50%;
     flex-direction: column;
     align-items: center;
-    --portrait-w: calc(var(--tile-w) * 0.9);
+    /* Capped by the screen height on short windows (wide laptop windows,
+       phones on their side) so the stack never runs off the top and bottom:
+       the lines below take about 8x the type size, plus 5rem of air. */
+    --portrait-w: max(6rem, min(calc(var(--tile-w) * 0.9), calc(100svh - 8 * clamp(1.5rem, 7vw, 2.6rem) - 5rem)));
   }
   .typed { font-size: clamp(1.5rem, 7vw, 2.6rem); width: max-content; max-width: 100%; margin-inline: auto; }
   /* Lines stack down the center on a phone instead of hugging the left. */
